@@ -10,6 +10,17 @@ __config() -> {
 	},
 };
 
+import('ica-libs', 'shuffleList', 'countCareer');
+
+__on_start() -> (
+	if(nbt_storage('ica:data'):'Goals' == null, (
+		nbt_storage('ica:data', '{Goals: [], Started: 0b, Preparing: 0b}')
+	));
+	if(nbt_storage('ica:careers'):'Config' == null, (
+		nbt_storage('ica:careers', '{Config: [], Participants: []}')
+	))
+);
+
 clearBossbars() -> (
 	run('bossbar remove ica:prepare_counter');
 	run('bossbar remove ica:time_counter');
@@ -26,10 +37,17 @@ createBossbar(nid, name, val, sty) -> (
 	if(sty != null, bossbar(nid, 'style', sty));
 );
 
-
 __on_player_dies(p) -> (
 	if(nbt_storage('ica:data'):'Started'
 		&& !nbt_storage('ica:data'):'Preparing', (
+		modify(p, 'gamemode', 'spectator');
+		modify(p, 'tag', 'ica.deceased');
+	));
+);
+
+__on_player_connects(p) -> (
+	if(nbt_storage('ica:data'):'Started'
+		&& query(p, 'has_scoreboard_tag', 'ica.deceased'), (
 		modify(p, 'gamemode', 'spectator');
 	));
 );
@@ -65,7 +83,7 @@ endTimeout(iv) -> (
 	endGameTitle(getPigPlayers(), 'Timeout!'
 		, str('You didn\'t complete %d goals in time.', iv));
 	endGameTitle(getWolfPlayers(), 'You won!'
-		, str('Those fools have failed, haha.', iv));
+		, str('Those fools have failed, good job.', iv));
 );
 
 endFinish() -> (
@@ -153,12 +171,6 @@ playerInit(p) -> (
 	inventory_set(p, 2, 1, 'minecraft:spyglass');
 );
 
-__on_start() -> (
-	if(nbt_storage('ica:data'):'Goals' == null, (
-		nbt_storage('ica:data', '{Goals: [], Started: 0b, Preparing: 0b}')
-	))
-);
-
 cmdResetClear() -> (
 	clearBossbars();
 	put(nbt_storage('ica:data'):'Started', '0b');
@@ -196,6 +208,16 @@ cmdStart() -> (
 		print('Already started, use /ica-admin reset clear to cancel.');
 		return(false)
 	));
+
+	participants_list = player('all');
+	participants_list = shuffleList(participants_list);
+	wolf_n = countCareer('wolf');
+	hunter_n = countCareer('hunter') + wolf_n;
+	if(hunter_n > length(participants_list), (
+		print('Not enough players online.');
+		return(false);
+	));
+
 	put(nbt_storage('ica:data'):'Started', '1b');
 	put(nbt_storage('ica:data'):'Preparing', '1b');
 	put(nbt_storage('ica:data'):'Goals[].Completed', '0b');
@@ -206,17 +228,20 @@ cmdStart() -> (
 
 	for(player('all'), modify(_, 'clear_tag', ['ica.piggy'
 		, 'ica.wolf', 'ica.hunter', 'ica.spyglasser', 'ica.spyglass_fireball'
-		, 'ica.voter', 'ica.flyer']));
+		, 'ica.voter', 'ica.flyer', 'ica.spyglasser_cooldown'
+		, 'ica.coordinator', 'ica.deceased']));
 
-	player_n = length(player('all'));
-	wolf_id = floor(rand(player_n));
-	for(player('all'), (
+	for(participants_list, (
 		modify(_, 'tag', ['ica.voter', 'ica.flyer']);
-		modify(_, 'tag', if(_i == wolf_id, ['ica.wolf', 'ica.spyglasser'], 'ica.piggy'));
+		career_tag = 'ica.piggy';
+		if(_i < hunter_n, career_tag = ['ica.hunter', 'ica.spyglasser', 'ica.spyglasser_cooldown']);
+		if(_i < wolf_n, career_tag = ['ica.wolf', 'ica.spyglasser', 'ica.coordinator']);
+
+		modify(_, 'tag', career_tag);
 	));
 
 	run('execute as @a run clear');
-	for(player('all'), playerInit(_));
+	for(participants_list, playerInit(_));
 
 	run('ica-effect-applier enable');
 	run('time set day');

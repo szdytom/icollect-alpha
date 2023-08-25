@@ -1,5 +1,4 @@
 __config() -> {
-	'command_permission' -> 'ops',
 	'commands' -> {
 		'' -> 'cmdList',
 		'list' -> 'cmdList',
@@ -7,11 +6,12 @@ __config() -> {
 		'refill' -> 'cmdRefill',
 		'seed' -> 'cmdSeed',
 		'me' -> 'cmdMe',
+		'locate <participant>' -> 'cmdLocate',
 	},
 	'arguments' -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
 			, 'suggest' -> [0, 1, 2, 3, 4, 5] },
-		'item' -> { 'type' -> 'item' }
+		'participant' -> { 'type' -> 'players' },
 	}
 };
 
@@ -23,6 +23,27 @@ tm_per_goal() -> (
 	12000
 );
 
+cmdLocate(pname) -> (
+	if(!nbt_storage('ica:data'):'Started', (
+		print('Not started. use /ica-admin confirm to start.');
+		return(false)
+	));
+	if(!query(player(), 'has_scoreboard_tag', 'ica.coordinator'), (
+		print('You don\'t have this ability.');
+		return(false)
+	));
+
+	p = player(pname:0);
+	ppos = query(p, 'pos');
+	pdim = query(p, 'dimension');
+	mydim = query(player(), 'dimension');
+	if(pdim == mydim, (
+		print(str('%s: %.1f %.1f %.1f.', pdim, ppos:0, ppos:1, ppos:2));
+	), (
+		print(str('%s: ? ? ?', pdim));
+	));
+);
+
 cmdSeed() -> (
 	print(str('%s: %d', system_info('world_name'), system_info('world_seed')));
 );
@@ -32,7 +53,7 @@ cmdRefill() -> (
 		print('Not started. use /ica-admin confirm to start.');
 		return(false)
 	));
-	if(!query(p, 'has_scoreboard_tag', 'ica.flyer'), (
+	if(!query(player(), 'has_scoreboard_tag', 'ica.flyer'), (
 		print('You cannot fly.');
 		return(false)
 	));
@@ -93,7 +114,7 @@ cmdMe() -> (
 		print('[ability] voter: you can vote.');
 	));
 	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
-		print('[ability] flyer: you can fly with an elt.');
+		print('[ability] flyer: you can fly with an elytra.');
 	));
 	if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser'), (
 		print('[ability] spyglasser: You can shoot fireballs with a spyglass(except in prepare stage).');
@@ -101,6 +122,9 @@ cmdMe() -> (
 	// if(query(myself, 'has_scoreboard_tag', 'ica.kungfu_master'), (
 	// 	print('[ability] kungfu master: You can get a temporary slow-falling effect by using a feather.');
 	// ));
+	if(query(myself, 'has_scoreboard_tag', 'ica.coordinator'), (
+		print('[ability] coordinator: you can locate other participants.');
+	));
 );
 
 cmdSubmit(slot_id) -> (

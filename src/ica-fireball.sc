@@ -1,4 +1,6 @@
-shoot_fireball(myself, rm) -> (
+global_lastUseSpyglass = -1000;
+
+shootFireball(myself, rm) -> (
     playerPos = query(myself, 'pos') + l(0, query(myself, 'eye_height'), 0); // Set the position where the fireball will spawn
     playerM = query(myself, 'motion');
 
@@ -16,15 +18,28 @@ shoot_fireball(myself, rm) -> (
 
 __on_player_uses_item(myself, item_tuple, hand) -> (
     if(item_tuple:0 == 'fire_charge',
-        shoot_fireball(myself, true);
+        shootFireball(myself, true);
     );
 );
 
-__on_player_releases_item(myself, item_tuple, hand) -> (
+shootFireballSpyglass(myself) -> (
     if(!query(myself, 'has_scoreboard_tag', 'ica.spyglass_fireball'), (
-        return();
+        return(null);
     ));
+    nowTT = tick_time();
+    dt = nowTT - global_lastUseSpyglass;
+    if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser_cooldown')
+        && dt < 200, (
+        print(str('spyglass too hot, please wait another %.2f seconds to shoot again.'
+            , (200 - dt) / 20.0));
+        return(null);
+    ));
+    shootFireball(myself, false);
+    global_lastUseSpyglass = nowTT;
+);
+
+__on_player_releases_item(myself, item_tuple, hand) -> (
     if(item_tuple:0 == 'spyglass',
-        shoot_fireball(myself, false);
+        shootFireballSpyglass(myself);
     );
 );

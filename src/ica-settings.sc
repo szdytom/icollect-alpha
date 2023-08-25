@@ -6,13 +6,19 @@ __config() -> {
 		'list' -> 'cmdList',
 		'set <slot> <item>' -> 'cmdSet',
 		'add <item>' -> 'cmdSetAppend',
+		'career' -> 'cmdListCareers',
+		'career <career_type> <amount>' -> 'cmdConfigCareer',
 	},
 	'arguments' -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
 			, 'suggest' -> [0, 1, 2, 3, 4, 5] },
-		'item' -> { 'type' -> 'item' }
-	}
+		'item' -> { 'type' -> 'item' },
+		'career_type' -> { 'type' -> 'string', 'options' -> [ 'wolf', 'hunter' ] },
+		'amount' -> { 'type' -> 'int', 'min' -> 0, 'suggest' -> [1] },
+	},
 };
+
+import('ica-libs', 'countCareer');
 
 getFirstUnsetGoal() -> (
 	c_for(i = 0, i <= 5, i = i + 1, (
@@ -47,6 +53,26 @@ cmdSetAppend(goal_item_tuple) -> (
 	if(missing_goal <= 5, (
 		cmdSet(missing_goal, goal_item_tuple)
 	), (
-		print('All are goals set, please specify slot.')
+		print('All are goals set, please use /ica-settings set <slot> <item>.')
 	));
+);
+
+cmdListCareers() -> (
+	print('Career configs are:');
+	print(str(' - Wolf: %d participants.', countCareer('wolf')));
+	print(str(' - Hunter: %d participants.', countCareer('hunter')));
+	print(' - Piggy: Whatever the rest.');
+);
+
+cmdConfigCareer(cartype, ccount) -> (
+	if(nbt_storage('ica:data'):'Started', (
+		print('Already started, use /ica-admin reset clear to cancel.');
+		return(false)
+	));
+	pkey = str('Config[{Type: "%s"}].Count', cartype);
+	etag = nbt(str('{Type: "%s", Count: %db}', cartype, ccount));
+
+	if(nbt_storage('ica:careers'):pkey != null, delete(nbt_storage('ica:careers'):pkey));
+	put(nbt_storage('ica:careers'), 'Config', etag, -1);
+	print(str('Career %s set to %d participants.', cartype, ccount))
 );
