@@ -2,7 +2,6 @@ __config() -> {
 	'scope' -> 'global',
 	'command_permission' -> 'ops',
 	'commands' -> {
-		'' -> 'cmdList',
 		'list' -> 'cmdList',
 		'set <slot> <item>' -> 'cmdSet',
 		'add <item>' -> 'cmdSetAppend',

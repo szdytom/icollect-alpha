@@ -6,6 +6,7 @@ __config() -> {
 		'refill' -> 'cmdRefill',
 		'seed' -> 'cmdSeed',
 		'me' -> 'cmdMe',
+		'whoami' -> 'cmdMe',
 		'locate <participant>' -> 'cmdLocate',
 	},
 	'arguments' -> {
@@ -28,17 +29,32 @@ cmdLocate(pname) -> (
 		print('Not started. use /ica-admin confirm to start.');
 		return(false)
 	));
+	myself = player();
+	if(query(myself, 'has_scoreboard_tag', 'ica.deceased'), (
+		print('You can only bystand.');
+		return(false);
+	));
 	if(!query(player(), 'has_scoreboard_tag', 'ica.coordinator'), (
 		print('You don\'t have this ability.');
 		return(false)
 	));
 
 	p = player(pname:0);
+	if(p == null, (
+		print('Not found');
+		return(false);
+	));
+
 	ppos = query(p, 'pos');
 	pdim = query(p, 'dimension');
-	mydim = query(player(), 'dimension');
+	mydim = query(myself, 'dimension');
 	if(pdim == mydim, (
 		print(str('%s: %.1f %.1f %.1f.', pdim, ppos:0, ppos:1, ppos:2));
+		sslot = query(myself, 'selected_slot');
+		sitem = inventory_get(myself, sslot);
+		inventory_set(myself, sslot, 1, 'compass', 
+			str('{LodestonePos: {X: %d, Y: %d, Z: %d}, LodestoneDimension: "%s", LodestoneTracked: 0b}'
+				, floor(ppos:0), floor(ppos:1), floor(ppos:2), pdim)); 
 	), (
 		print(str('%s: ? ? ?', pdim));
 	));
@@ -53,11 +69,18 @@ cmdRefill() -> (
 		print('Not started. use /ica-admin confirm to start.');
 		return(false)
 	));
-	if(!query(player(), 'has_scoreboard_tag', 'ica.flyer'), (
-		print('You cannot fly.');
-		return(false)
+	myself = player();
+	if(query(myself, 'has_scoreboard_tag', 'ica.deceased'), (
+		print('You can only bystand.');
+		return(false);
 	));
-	run('give @s minecraft:firework_rocket 64');
+	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
+		run('give @s minecraft:firework_rocket 64');
+	));
+	if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser')
+		&& !nbt_storage('ica:data'):'Preparing', (
+			modify(myself, 'tag', 'ica.spyglass_fireball');
+	));
 );
 
 cmdList() -> (
@@ -136,6 +159,11 @@ cmdSubmit(slot_id) -> (
 		print('Currently preparing, please submit later.');
 		return(false)
 	));
+	me = player();
+	if(query(me, 'has_scoreboard_tag', 'ica.deceased'), (
+		print('You can only bystand.');
+		return(false);
+	));
 
 	pkey = str('Goals[{Slot: %db}]', slot_id);
 	if(nbt_storage('ica:data'):pkey:'Completed', (
@@ -143,7 +171,7 @@ cmdSubmit(slot_id) -> (
 			nbt_storage('ica:data'):pkey:'Item')));
 		return()
 	));
-	me = player();
+
 	if(inventory_remove(me, nbt_storage('ica:data'):pkey:'Item', 1) == 0, (
 		print(str('%s not found.', item_display_name(
 			nbt_storage('ica:data'):pkey:'Item')));

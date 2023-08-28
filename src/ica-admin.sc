@@ -2,7 +2,6 @@ __config() -> {
 	'scope' -> 'global',
 	'command_permission' -> 'ops',
 	'commands' -> {
-		'' -> 'cmdList',
 		'list' -> 'cmdList',
 		'confirm' -> 'cmdStart',
 		'reset clear' -> 'cmdResetClear',
@@ -10,21 +9,40 @@ __config() -> {
 	},
 };
 
-import('ica-libs', 'shuffleList', 'countCareer');
+import('ica-libs', 'shuffleList', 'countCareer', 'playerListNbt', 'findVoteMax', 'resetVotes');
 
 __on_start() -> (
 	if(nbt_storage('ica:data'):'Goals' == null, (
 		nbt_storage('ica:data', '{Goals: [], Started: 0b, Preparing: 0b}')
 	));
 	if(nbt_storage('ica:careers'):'Config' == null, (
-		nbt_storage('ica:careers', '{Config: [], Participants: []}')
+		nbt_storage('ica:careers', '{Config: []}')
+	));
+	if(nbt_storage('ica:voting'):'Created' == null, (
+		nbt_storage('ica:voting', '{Created: 1b, Candidates: [], Votes: []}')
 	))
 );
 
 clearBossbars() -> (
+	// bossbar(name, 'remove') is sometimes buggy.
 	run('bossbar remove ica:prepare_counter');
 	run('bossbar remove ica:time_counter');
 	run('bossbar remove ica:collected');
+);
+
+cleanPlayerTags() -> (	
+	for(player('all'), modify(_, 'clear_tag', ['ica.piggy'
+		, 'ica.wolf', 'ica.hunter', 'ica.spyglasser', 'ica.spyglass_fireball'
+		, 'ica.voter', 'ica.flyer', 'ica.spyglasser_cooldown'
+		, 'ica.coordinator', 'ica.deceased', 'ica.participant']));
+);
+
+endCleanup() -> (
+	clearBossbars();
+	cleanPlayerTags();
+	put(nbt_storage('ica:data'):'Started', '0b');
+	put(nbt_storage('ica:data'):'Preparing', '0b');
+	run('ica-effect-applier disable');
 );
 
 createBossbar(nid, name, val, sty) -> (
@@ -46,9 +64,14 @@ __on_player_dies(p) -> (
 );
 
 __on_player_connects(p) -> (
-	if(nbt_storage('ica:data'):'Started'
-		&& query(p, 'has_scoreboard_tag', 'ica.deceased'), (
-		modify(p, 'gamemode', 'spectator');
+	if(nbt_storage('ica:data'):'Started', (
+		if(!query(p, 'has_scoreboard_tag', 'ica.participant'), (
+			modify(p, 'tag', 'ica.deceased');
+		));
+
+		if(p, 'has_scoreboard_tag', 'ica.deceased', (
+			modify(p, 'gamemode', 'spectator');
+		));
 	));
 );
 
@@ -65,7 +88,7 @@ tm_per_goal() -> (
 );
 
 getPigPlayers() -> (
-	entity_selector('@a[tag=!ica.wolf]')
+	entity_selector('@a[tag=!ica.wolf,tag=ica.participant]')
 );
 
 getWolfPlayers() -> (
@@ -78,8 +101,7 @@ endGameTitle(p, m, s) -> (
 );
 
 endTimeout(iv) -> (
-	clearBossbars();
-	put(nbt_storage('ica:data'):'Started', '0b');
+	endCleanup();
 	endGameTitle(getPigPlayers(), 'Timeout!'
 		, str('You didn\'t complete %d goals in time.', iv));
 	endGameTitle(getWolfPlayers(), 'You won!'
@@ -87,8 +109,7 @@ endTimeout(iv) -> (
 );
 
 endFinish() -> (
-	clearBossbars();
-	put(nbt_storage('ica:data'):'Started', '0b');
+	endCleanup();
 	endGameTitle(getPigPlayers(), 'Congratulations!', 'You have completed all the goals.');
 	endGameTitle(getWolfPlayers(), 'Oh no!'
 		, str('They have completed all the goals.', iv));
@@ -120,6 +141,31 @@ warnDeadline(dt) -> (
 	));
 );
 
+electionKill(pname) -> (
+	modify(player(pname), 'kill');
+	print(player('all'), str('Election victim %s killed.', pname))
+);
+
+checkVotes(tm) -> (
+	if(tm % 12000 == 3600, (
+		print(player('all'), '[WARN] Vote ends in 1 minute');
+		return(false);
+	));
+	if(tm % 12000 == 2400, (
+		max_p = findVoteMax();
+		phint = if(max_p == null, (
+			'nobody was elected.'
+		), (
+			ele_p = player(max_p);
+			schedule(200, 'electionKill', ele_p);
+			print(ele_p, '[WARN] You were elected! You will be killed in 10 seconds.');
+			str('elected player %s', max_p)
+		));
+		resetVotes();
+		print(player('all'), str('Election result: %s.\nNew eletion round started.', phint));
+	));
+);
+
 runUpdateCollect() -> (
 	if(!nbt_storage('ica:data'):'Started', return());
 	tm = bossbar('ica:time_counter', 'value') - 20;
@@ -131,6 +177,7 @@ runUpdateCollect() -> (
 		endTimeout(iv);
 	), (
 		warnDeadline(dt);
+		checkVotes(tm);
 		schedule(20, 'runUpdateCollect');
 	))
 );
@@ -172,9 +219,7 @@ playerInit(p) -> (
 );
 
 cmdResetClear() -> (
-	clearBossbars();
-	put(nbt_storage('ica:data'):'Started', '0b');
-	put(nbt_storage('ica:data'):'Preparing', '0b');
+	endCleanup();
 );
 
 cmdReschedule() -> (
@@ -223,16 +268,13 @@ cmdStart() -> (
 	put(nbt_storage('ica:data'):'Goals[].Completed', '0b');
 
 	createBossbar('ica:prepare_counter', 'Preparing', tm_prepare(), null);
-
 	schedule(20, 'runUpdatePrepare');
 
-	for(player('all'), modify(_, 'clear_tag', ['ica.piggy'
-		, 'ica.wolf', 'ica.hunter', 'ica.spyglasser', 'ica.spyglass_fireball'
-		, 'ica.voter', 'ica.flyer', 'ica.spyglasser_cooldown'
-		, 'ica.coordinator', 'ica.deceased']));
+	cleanPlayerTags();
+	put(nbt_storage('ica:voting'), 'Candidates', playerListNbt(participants_list));
 
 	for(participants_list, (
-		modify(_, 'tag', ['ica.voter', 'ica.flyer']);
+		modify(_, 'tag', ['ica.voter', 'ica.flyer', 'ica.participant']);
 		career_tag = 'ica.piggy';
 		if(_i < hunter_n, career_tag = ['ica.hunter', 'ica.spyglasser', 'ica.spyglasser_cooldown']);
 		if(_i < wolf_n, career_tag = ['ica.wolf', 'ica.spyglasser', 'ica.coordinator']);
