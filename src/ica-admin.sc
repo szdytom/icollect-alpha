@@ -101,18 +101,18 @@ endGameTitle(p, m, s) -> (
 );
 
 endTimeout(iv) -> (
-	endCleanup();
 	endGameTitle(getPigPlayers(), 'Timeout!'
 		, str('You didn\'t complete %d goals in time.', iv));
 	endGameTitle(getWolfPlayers(), 'You won!'
 		, str('Those fools have failed, good job.', iv));
+	endCleanup();
 );
 
 endFinish() -> (
-	endCleanup();
 	endGameTitle(getPigPlayers(), 'Congratulations!', 'You have completed all the goals.');
 	endGameTitle(getWolfPlayers(), 'Oh no!'
 		, str('They have completed all the goals.', iv));
+	endCleanup();
 );
 
 getFirstUnsetGoal() -> (
@@ -142,7 +142,11 @@ warnDeadline(dt) -> (
 );
 
 electionKill(pname) -> (
-	modify(player(pname), 'kill');
+	p = player(pname);
+	if(p != null, (
+		modify(p, 'tag', 'ica.deceased');
+		modify(p, 'gamemode', 'spectator');
+	));
 	print(player('all'), str('Election victim %s killed.', pname))
 );
 

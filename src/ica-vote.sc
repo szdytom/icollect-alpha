@@ -30,11 +30,11 @@ cmdInfo() -> (
 	for(cand_names, (
 		p = player(_);
 		v_cnt = countVotes(_);
-		print(str(' - %02d vote%s %s%s', v_cnt, if(v_cnt > 1, 's', ' ')
+		print(str(' - [%02d vote%s] %s%s', v_cnt, if(v_cnt > 1, 's', ' ')
 			, _, if(query(p, 'has_scoreboard_tag', 'ica.deceased'), ' [deceased]', '')));
 	));
 	abv_cnt = countAbstainVotes();
-	print(' - %02d vote%s (abstain)', abv_cnt, if(abv_cnt > 1, 's', ' '));
+	print(str(' - [%2d vote%s] (abstain)', abv_cnt, if(abv_cnt > 1, 's', ' ')));
 
 	max_p = findVoteMax();
 	print(str('Current elected: %s', if(max_p == null, '(nobody)', max_p)));
