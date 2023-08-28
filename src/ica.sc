@@ -52,9 +52,11 @@ cmdLocate(pname) -> (
 		print(str('%s: %.1f %.1f %.1f.', pdim, ppos:0, ppos:1, ppos:2));
 		sslot = query(myself, 'selected_slot');
 		sitem = inventory_get(myself, sslot);
-		inventory_set(myself, sslot, 1, 'compass', 
-			str('{LodestonePos: {X: %d, Y: %d, Z: %d}, LodestoneDimension: "%s", LodestoneTracked: 0b}'
-				, floor(ppos:0), floor(ppos:1), floor(ppos:2), pdim)); 
+		if(sitem == null || sitem:0 == 'compass', (
+			inventory_set(myself, sslot, 1, 'compass', 
+				str('{LodestonePos: {X: %d, Y: %d, Z: %d}, LodestoneDimension: "%s", LodestoneTracked: 0b}'
+					, floor(ppos:0), floor(ppos:1), floor(ppos:2), pdim)); 
+		));
 	), (
 		print(str('%s: ? ? ?', pdim));
 	));
