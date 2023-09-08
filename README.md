@@ -20,15 +20,15 @@ ICollect-Alpha 是一个使用 Carpet 脚本的“物品收集x狼人杀 Minecra
 6. 游戏过程中，玩家获得持续的生命回复I和抗性提升I（每10秒更新一次状态效果为15秒）。
 
 【指令使用】
-1. /ica：列出物品收集目标和时限信息
-2. /ica submit <编号>：递交一个目标要求的物品
-3. /ica me：查看自己的身份
-4. /ica seed：查看地图种子
-5. /ica refill：刷新自己的烟花
-6. /ica locate <name>：定位某一玩家位置，空手使用时可获得指向位置的指南针
-7. /ica-vote：查看当前投票状态信息
-8. /ica-vote abstain：投弃权票
-9. /ica-vote sus <name>：投票给某一玩家
+1. `/ica`：列出物品收集目标和时限信息
+2. `/ica submit <slot>`：递交一个目标要求的物品
+3. `/ica me`：查看自己的身份
+4. `/ica seed`：查看地图种子
+5. `/ica refill`：刷新自己的烟花
+6. `/ica locate <name>`：定位某一玩家位置，空手使用时可获得指向位置的指南针
+7. `/ica-vote`：查看当前投票状态信息
+8. `/ica-vote abstain`：投弃权票
+9. `/ica-vote sus <name>`：投票给某一玩家
 
 祝您游戏愉快！
 
