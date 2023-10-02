@@ -291,7 +291,7 @@ cmdStart() -> (
 
 	run('ica-effect-applier enable');
 	run('time set day');
-	run('gamerule keepInventory false');
+	run('gamerule keepInventory true');
 	run('gamerule playersSleepingPercentage 0');
 	run('worldborder set 10000');
 );
