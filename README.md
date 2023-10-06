@@ -1,6 +1,6 @@
 # icollect-alpha
 
-ICollect-Alpha 是一个使用 Carpet 脚本的“物品收集x狼人杀 Minecraft小游戏”实现。
+ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric-carpet) 的“物品收集x狼人杀 Minecraft小游戏”实现。
 
 ## 规则
 

@@ -1,3 +1,6 @@
+
+import('ica-i18n', 'getLocaleKey');
+
 global_lastUseSpyglass = -500;
 
 shootFireball(myself) -> (
@@ -47,8 +50,7 @@ checkCooldown(myself) -> (
     if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser_cooldown')
         && dt < 100, (
         display_title(player(), 'actionbar'
-            , str('spyglass too hot, please wait another %.2f seconds to shoot again.'
-            , (100 - dt) / 20.0), 100, 100, 100);
+            , str(getLocaleKey('reject.spyglass'), (100 - dt) / 20.0));
         return(true);
     ));
     global_lastUseSpyglass = nowTT;

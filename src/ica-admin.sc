@@ -9,7 +9,9 @@ __config() -> {
 	},
 };
 
-import('ica-libs', 'shuffleList', 'countCareer', 'playerListNbt', 'findVoteMax', 'resetVotes');
+import('ica-libs', 'shuffleList', 'countCareer', 'playerListNbt'
+	, 'findVoteMax', 'resetVotes');
+import('ica-i18n', 'getLocaleKey');
 
 __on_start() -> (
 	if(nbt_storage('ica:data'):'Goals' == null, (
@@ -32,7 +34,8 @@ clearBossbars() -> (
 
 cleanPlayerTags() -> (	
 	for(player('all'), modify(_, 'clear_tag', ['ica.piggy'
-		, 'ica.wolf', 'ica.hunter', 'ica.fireball_spyglasser', 'ica.spyglass_fireball'
+		, 'ica.wolf', 'ica.hunter', 'ica.firework_hunter'
+		, 'ica.fireball_spyglasser', 'ica.spyglass_fireball'
 		, 'ica.voter', 'ica.flyer', 'ica.spyglasser_cooldown'
 		, 'ica.coordinator', 'ica.deceased', 'ica.participant'
 		, 'ica.firework_spyglasser', 'ica.build_spyglasser'
@@ -103,17 +106,18 @@ endGameTitle(p, m, s) -> (
 );
 
 endTimeout(iv) -> (
-	endGameTitle(getPigPlayers(), 'Timeout!'
-		, str('You didn\'t complete %d goals in time.', iv));
-	endGameTitle(getWolfPlayers(), 'You won!'
-		, str('Those fools have failed, good job.', iv));
+	endGameTitle(getPigPlayers(), getLocaleKey('pig.timeout.title')
+		, str(getLocaleKey('pig.timeout.subtitle'), iv));
+	endGameTitle(getWolfPlayers(), getLocaleKey('wolf.timeout.subtitle')
+		, str(getLocaleKey('wolf.timeout.subtitle'), iv));
 	endCleanup();
 );
 
 endFinish() -> (
-	endGameTitle(getPigPlayers(), 'Congratulations!', 'You have completed all the goals.');
-	endGameTitle(getWolfPlayers(), 'Oh no!'
-		, str('They have completed all the goals.', iv));
+	endGameTitle(getPigPlayers(), getLocaleKey('pig.complete.title')
+		, getLocaleKey('pig.complete.subtitle'));
+	endGameTitle(getWolfPlayers(), getLocaleKey('wolf.complete.title')
+		, getLocaleKey('wolf.complete.subtitle'));
 	endCleanup();
 );
 
@@ -133,17 +137,17 @@ actionbarMessage(msg) -> (
 
 warnDeadline(dt) -> (
 	if (dt == 1200, (
-		actionbarMessage('[WARN] Submission deadline in 1 minute.');
+		actionbarMessage(getLocaleKey('submit.ddl.1'));
 	));
 	if (dt == 600, (
-		actionbarMessage('[WARN] Submission deadline in 30 seconds.');
+		actionbarMessage(str(getLocaleKey('submit.ddl.2'), 30));
 	));
 	if (dt == 300, (
-		actionbarMessage('[WARN] Submission deadline in 15 seconds.');
+		actionbarMessage(str(getLocaleKey('submit.ddl.2'), 15));
 	));
 	if (dt <= 200 && dt % 20 == 0, (
-		actionbarMessage(str('[WARN] Submission deadline in %d second%s!'
-			, dt / 20, if(dt > 20, 's', '')));
+		actionbarMessage(str(getLocaleKey(if(dt > 20, 'submit.ddl.2'
+			, 'submit.ddl.3')), dt / 20));
 	));
 );
 
@@ -153,26 +157,27 @@ electionKill(pname) -> (
 		modify(p, 'tag', 'ica.deceased');
 		modify(p, 'gamemode', 'spectator');
 	));
-	print(player('all'), str('Election victim %s killed.', pname))
+	print(player('all'), str(getLocaleKey('election.kill'), pname))
 );
 
 checkVotes(tm) -> (
 	if(tm % 12000 == 3600, (
-		actionbarMessage('[WARN] Vote ends in 1 minute');
+		actionbarMessage(getLocaleKey('election.ddl'));
 		return(false);
 	));
 	if(tm % 12000 == 2400, (
 		max_p = findVoteMax();
 		phint = if(max_p == null, (
-			'nobody was elected'
+			getLocaleKey('election.result.nobody')
 		), (
 			ele_p = player(max_p);
 			schedule(200, 'electionKill', ele_p);
-			print(ele_p, '[WARN] You were elected! You will be killed in 10 seconds.');
-			str('elected player %s', max_p)
+			print(ele_p, getLocaleKey('election.result.kill'));
+			max_p
 		));
 		resetVotes();
-		print(player('all'), str('Election result: %s.\nNew eletion round started.', phint));
+		print(player('all'), str(getLocaleKey('election.result'), phint));
+		print(player('all'), getLocaleKey('election.new'))
 	));
 );
 
@@ -196,8 +201,10 @@ startCollectStage() -> (
 	schedule(20, 'runUpdateCollect');
 
 	clearBossbars();
-	createBossbar('ica:time_counter', 'Time Left', tm_total(), 'notched_6');
-	createBossbar('ica:collected', 'Collected', 6, 'notched_6');
+	createBossbar('ica:time_counter', format(getLocaleKey('bossbar.time.title'))
+		, tm_total(), 'notched_6');
+	createBossbar('ica:collected', format(getLocaleKey('bossbar.progress.title'))
+		, 6, 'notched_6');
 	bossbar('ica:collected', 'value', 0);
 
 	for(player('all'), (
@@ -238,7 +245,7 @@ cmdResetClear() -> (
 
 cmdReschedule() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	schedule('runUpdateCollect', 20);
@@ -259,12 +266,12 @@ runUpdatePrepare() -> (
 cmdStart() -> (
 	missing_goal = getFirstUnsetGoal();
 	if(missing_goal <= 5, (
-		print(str('Goal #%d is unset.', missing_goal));
+		print(str(getLocaleKey('reject.goal.missing'), missing_goal));
 		return(false)
 	));
 
 	if(nbt_storage('ica:data'):'Started', (
-		print('Already started, use /ica-admin reset clear to cancel.');
+		print(format(getLocaleKey('reject.started')));
 		return(false)
 	));
 
@@ -275,7 +282,7 @@ cmdStart() -> (
 	builder_n = countCareer('builder') + hunter_n;
 	firework_hunter_n = countCareer('firework_hunter') + builder_n;
 	if(firework_hunter_n > length(participants_list), (
-		print('Not enough players online.');
+		print(format(getLocaleKey('reject.leckplayer')));
 		return(false);
 	));
 
@@ -283,7 +290,8 @@ cmdStart() -> (
 	put(nbt_storage('ica:data'):'Preparing', '1b');
 	put(nbt_storage('ica:data'):'Goals[].Completed', '0b');
 
-	createBossbar('ica:prepare_counter', 'Preparing', tm_prepare(), null);
+	createBossbar('ica:prepare_counter', format(getLocaleKey('bossbar.prepare.title'))
+		, tm_prepare(), null);
 	schedule(20, 'runUpdatePrepare');
 
 	cleanPlayerTags();
@@ -292,7 +300,7 @@ cmdStart() -> (
 	for(participants_list, (
 		modify(_, 'tag', ['ica.voter', 'ica.flyer', 'ica.participant']);
 		career_tag = 'ica.piggy';
-		if(_i < firework_hunter_n, career_tag = ['ica.hunter_firework', 'ica.firework_spyglasser', 'ica.spyglasser_cooldown']);
+		if(_i < firework_hunter_n, career_tag = ['ica.firework_hunter', 'ica.firework_spyglasser', 'ica.spyglasser_cooldown']);
 		if(_i < builder_n, career_tag = ['ica.builder', 'ica.build_spyglasser']);
 		if(_i < hunter_n, career_tag = ['ica.hunter', 'ica.fireball_spyglasser', 'ica.spyglasser_cooldown']);
 		if(_i < wolf_n, career_tag = ['ica.wolf', 'ica.fireball_spyglasser', 'ica.firework_spyglasser', 'ica.build_spyglasser', 'ica.coordinator']);
@@ -308,10 +316,10 @@ cmdStart() -> (
 	run('gamerule keepInventory true');
 	run('gamerule playersSleepingPercentage 0');
 	run('gamerule randomTickSpeed 12');
-	run('worldborder set 10000');
+	run('worldborder set 20000');
 );
 
 cmdList() -> (
-	print('please use /ica instead');
+	print(format(getLocaleKey('instead')));
 	run('/ica');
 );

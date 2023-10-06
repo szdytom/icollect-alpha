@@ -18,6 +18,7 @@ __config() -> {
 	},
 };
 
+import('ica-i18n', 'getLocaleKey');
 import('ica-libs', 'countCareer');
 
 getFirstUnsetGoal() -> (
@@ -31,13 +32,13 @@ getFirstUnsetGoal() -> (
 );
 
 cmdList() -> (
-	print('please use /ica instead');
+	print(format(getLocaleKey('instead')));
 	run('/ica');
 );
 
 cmdSet(slot_id, goal_item_tuple) -> (
 	if(nbt_storage('ica:data'):'Started', (
-		print('Already started, use /ica-admin reset clear to cancel.');
+		print(format(getLocaleKey('reject.started')));
 		return(false)
 	));
 	pkey = str('Goals[{Slot: %db}]', slot_id);
@@ -53,20 +54,21 @@ cmdSetAppend(goal_item_tuple) -> (
 	if(missing_goal <= 5, (
 		cmdSet(missing_goal, goal_item_tuple)
 	), (
-		print('All are goals set, please use /ica-settings set <slot> <item>.')
+		print(format(getLocaleKey('reject.goal.enough')))
 	));
 );
 
 cmdListCareers() -> (
-	print('Career configs are:');
-	print(str(' - Wolf: %d participants.', countCareer('wolf')));
-	print(str(' - Hunter: %d participants.', countCareer('hunter')));
-	print(' - Piggy: Whatever the rest.');
+	print(getLocaleKey('career.display.title'));
+	for(['wolf', 'hunter', 'firework_hunter', 'builder'], (
+		print(str(getLocaleKey('career.display.' + _), countCareer(_)));
+	));
+	print(getLocaleKey('career.display.piggy'));
 );
 
 cmdConfigCareer(cartype, ccount) -> (
 	if(nbt_storage('ica:data'):'Started', (
-		print('Already started, use /ica-admin reset clear to cancel.');
+		print(format(getLocaleKey('reject.started')));
 		return(false)
 	));
 	pkey = str('Config[{Type: "%s"}].Count', cartype);
@@ -74,5 +76,5 @@ cmdConfigCareer(cartype, ccount) -> (
 
 	if(nbt_storage('ica:careers'):pkey != null, delete(nbt_storage('ica:careers'):pkey));
 	put(nbt_storage('ica:careers'), 'Config', etag, -1);
-	print(str('Career %s set to %d participants.', cartype, ccount))
+	print(str(getLocaleKey('career.set'), cartype, ccount))
 );

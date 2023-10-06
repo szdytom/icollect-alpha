@@ -13,11 +13,19 @@ __config() -> {
 	'arguments' -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
 			, 'suggest' -> [0, 1, 2, 3, 4, 5] },
-		'participant' -> { 'type' -> 'players' },
+		'participant' -> { 'type' -> 'string', 'suggester' -> _(arg) -> (
+			if(nbt_storage('ica:data'):'Started',
+				parse_nbt(nbt_storage('ica:voting'):'Candidates'),
+				[]
+			)
+		)},
 		'spyglass_feature' -> { 'type' -> 'string',
 			'options' -> [ 'builder', 'firework', 'fireball' ] }
 	}
 };
+
+import('ica-libs', 'listContain');
+import('ica-i18n', 'getLocaleKey');
 
 global_capMarkerMap = {
 	'builder' -> 'ica.build_spyglasser',
@@ -34,16 +42,16 @@ tm_per_goal() -> (
 );
 
 lackOfAbilityReject() -> (
-	display_title(player(), 'actionbar', 'You don\'t have this ability.');
+	print(getLocaleKey('reject.unable'));
 );
 
 bystandReject() -> (
-	display_title(player(), 'actionbar', 'You can only bystand.');
+	print(getLocaleKey('reject.bystand'));
 );
 
 cmdLocate(pname) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	myself = player();
@@ -56,9 +64,15 @@ cmdLocate(pname) -> (
 		return(false);
 	));
 
-	p = player(pname:0);
+	cand_names = parse_nbt(nbt_storage('ica:voting'):'Candidates');
+	if(!listContain(cand_names, pname), (
+		print(str(getLocaleKey('locate.notfound'), pname));
+		return(false);
+	));
+
+	p = player(pname);
 	if(p == null, (
-		print('Not found');
+		print(str(getLocaleKey('locate.offline'), pname));
 		return(false);
 	));
 
@@ -80,17 +94,19 @@ cmdLocate(pname) -> (
 );
 
 cmdSeed() -> (
-	print(str('%s: %d', system_info('world_name'), system_info('world_seed')));
+	seed_val = str(system_info('world_seed'));
+	print(format(' ' + getLocaleKey('seed.title')
+		, 'c ' + seed_val, '&' + seed_val, '^ ' + getLocaleKey('misc.clipboard')));
 );
 
 cmdRefill() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	myself = player();
 	if(query(myself, 'has_scoreboard_tag', 'ica.deceased'), (
-		print('You can only bystand.');
+		bystandReject();
 		return(false);
 	));
 	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
@@ -101,81 +117,72 @@ cmdRefill() -> (
 cmdList() -> (
 	if(nbt_storage('ica:data'):'Started', (
 		if(!nbt_storage('ica:data'):'Preparing', (
-			print(str('Collecting, %d seconds left, %d are goals done:',
-				bossbar('ica:time_counter', 'value') / 20,
-				bossbar('ica:collected', 'value')));
+			print(str(getLocaleKey('list.title.collecting')
+				, bossbar('ica:time_counter', 'value') / 20
+				, bossbar('ica:collected', 'value')));
 		), (
-			print(str('Perparing, %d seconds to collect:'
+			print(str(getLocaleKey('list.title.preparing')
 				, bossbar('ica:prepare_counter', 'value') / 20));
 		));
 	), (
-		print('Pending:');
+		print(getLocaleKey('list.title.pending'));
 	));
 
 	c_for(i = 0, i <= 5, i = i + 1, (
 		p = nbt_storage('ica:data'):str('Goals[{Slot: %db}]', i);
 		if(p == null, (
-			print(str('- #%d: unset', i));
+			print(format(' ' + getLocaleKey('list.marker.0')
+				+ str(getLocaleKey('list.item.id'), i)
+				, 'gi ' + getLocaleKey('list.item.unset')));
 		), (
-			print(str('%s #%d: %s(%s)', if(nbt_storage('ica:data'):'Started' && p:'Completed', '+', '-')
-				, i, item_display_name(p:'Item'), p:'Item'))
-		))
+			if(nbt_storage('ica:data'):'Started' && p:'Completed', (
+				print(format(' ' + getLocaleKey('list.marker.1')
+					+ str(getLocaleKey('list.item.id'), i)
+					, 's ' + item_display_name(p:'Item')
+					, '^ minecraft:' + p:'Item'));
+			), (
+				if(nbt_storage('ica:data'):'Started' && !nbt_storage('ica:data'):'Preparing', (
+					print(format(' ' + getLocaleKey('list.marker.0')
+						+ str(getLocaleKey('list.item.id'), i)
+						, 'b ' + item_display_name(p:'Item')
+						, '^ minecraft:' + p:'Item'
+						, '   '
+						, 'mb ' + getLocaleKey('list.item.submit')
+						, '!/ica submit ' + str(i)));
+				), (
+					print(format(' ' + getLocaleKey('list.marker.0')
+						+ str(getLocaleKey('list.item.id'), i)
+						, 'b ' + item_display_name(p:'Item')
+						, '^ minecraft:' + p:'Item'));
+				)); 
+			))
+		));
 	));
 );
 
 cmdMe() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	myself = player();
-	career_hints = {
-		'Bystander' -> 'You have nothing to do, just watch.',
-		'Piggy' -> 'Complete all goals in time to win!',
-		'Hunter(Fireball)' -> 'Protect piggies and kill the wolf.',
-		'Hunter(Firework)' -> 'Protect piggies and kill the wolf.',
-		'Builder' -> 'Build protections and complete the goals!',
-		'Wolf' -> 'Stop them completing the goals!',
-	};
-	career = 'Bystander';
 
-	if(query(myself, 'has_scoreboard_tag', 'ica.piggy'), (
-		career = 'Piggy';
+	career = 'bystander';
+	for(['piggy', 'hunter', 'firework_hunter', 'builder', 'wolf'], (
+		if(query(myself, 'has_scoreboard_tag', 'ica.' + _), (
+			career = _;
+		));
 	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.hunter'), (
-		career = 'Hunter(Fireball)';
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.hunter_firework'), (
-		career = 'Hunter(Firework)';
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.builder'), (
-		career = 'Builder';
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.wolf'), (
-		career = 'Wolf';
-	));
-	print(str('You are "%s": %s', career, career_hints:career));
 
-	if(query(myself, 'has_scoreboard_tag', 'ica.voter'), (
-		print('[ability] voter: you can vote.');
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
-		print('[ability] flyer: you can fly with an elytra.');
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.fireball_spyglasser'), (
-		print('[ability] shooter: You can shoot fireballs with a spyglass(except in prepare stage).');
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.firework_spyglasser'), (
-		print('[ability] launcher: You can launch fireworks with a spyglass(except in prepare stage).');
-	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.build_spyglasser'), (
-		print('[ability] builder: You can build paths with a spyglass(except in prepare stage).');
-	));
-	// if(query(myself, 'has_scoreboard_tag', 'ica.kungfu_master'), (
-	// 	print('[ability] kungfu master: You can get a temporary slow-falling effect by using a feather.');
-	// ));
-	if(query(myself, 'has_scoreboard_tag', 'ica.coordinator'), (
-		print('[ability] coordinator: you can locate other participants.');
+	print(str(getLocaleKey('career.whoami'), getLocaleKey('career.title.' + career)
+		, getLocaleKey('career.help.' + career)));
+
+	for(['voter', 'flyer', 'fireball_spyglasser', 'firework_spyglasser'
+		, 'build_spyglasser', 'coordinator'], (
+		if(query(myself, 'has_scoreboard_tag', 'ica.' + _), (
+			print(str(getLocaleKey('ablity.format')
+				, getLocaleKey('ablity.title.' + _), getLocaleKey('ablity.help.' + _)));
+		));
 	));
 );
 
@@ -186,12 +193,12 @@ disableAllSpyglassAbilities(me) -> (
 
 cmdSpyglassSwitch(feature_id) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	me = player();
 	if(nbt_storage('ica:data'):'Preparing', (
-		display_title(me, 'actionbar', 'Currently preparing, please switch later.');
+		print(getLocaleKey('reject.reparing.switch'));
 		return(false)
 	));
 	if(query(me, 'has_scoreboard_tag', 'ica.deceased'), (
@@ -209,33 +216,35 @@ cmdSpyglassSwitch(feature_id) -> (
 
 cmdSubmit(slot_id) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print('Not started. use /ica-admin confirm to start.');
+		print(format(getLocaleKey('reject.pending')));
 		return(false)
 	));
 	if(nbt_storage('ica:data'):'Preparing', (
-		print('Currently preparing, please submit later.');
+		print(getLocaleKey('reject.reparing.submit'));
 		return(false)
 	));
 	me = player();
 	if(query(me, 'has_scoreboard_tag', 'ica.deceased'), (
-		print('You can only bystand.');
+		bystandReject();
 		return(false);
 	));
 
 	pkey = str('Goals[{Slot: %db}]', slot_id);
 	if(nbt_storage('ica:data'):pkey:'Completed', (
-		print(str('%s has already been collected.', item_display_name(
-			nbt_storage('ica:data'):pkey:'Item')));
+		print(format(getLocaleKey('submit.already.before'))
+			+ item_display_name(nbt_storage('ica:data'):pkey:'Item')
+			+ format(getLocaleKey('submit.already.after')));
 		return()
 	));
 
 	if(inventory_remove(me, nbt_storage('ica:data'):pkey:'Item', 1) == 0, (
-		print(str('%s not found.', item_display_name(
-			nbt_storage('ica:data'):pkey:'Item')));
+		print(format(getLocaleKey('submit.missing.before'))
+			+ item_display_name(nbt_storage('ica:data'):pkey:'Item')
+			+ format(getLocaleKey('submit.missing.after')));
 		return()
 	));
 	put(nbt_storage('ica:data'):(pkey+'.Completed'), '1b');
 	iv = bossbar('ica:collected', 'value') + 1;
 	bossbar('ica:collected', 'value', iv);
-	display_title(me, 'actionbar', 'OK.');
+	print(getLocaleKey('submit.success'));
 );
