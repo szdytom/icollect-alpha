@@ -24,7 +24,7 @@ cmdLoad() -> (
 	print(licenseHeader());
 	run('script load ica-admin');
 	run('script load ica-effect-applier');
-	run('script load ica-fireball');
+	run('script load ica-spyglass');
 	run('script load ica');
 	run('script load ica-vote');
 	run('script load ica-settings');

@@ -12,7 +12,8 @@ __config() -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
 			, 'suggest' -> [0, 1, 2, 3, 4, 5] },
 		'item' -> { 'type' -> 'item' },
-		'career_type' -> { 'type' -> 'string', 'options' -> [ 'wolf', 'hunter' ] },
+		'career_type' -> { 'type' -> 'string'
+			, 'options' -> [ 'wolf', 'hunter', 'builder', 'firework_hunter' ] },
 		'amount' -> { 'type' -> 'int', 'min' -> 0, 'suggest' -> [1] },
 	},
 };

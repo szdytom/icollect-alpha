@@ -8,12 +8,21 @@ __config() -> {
 		'me' -> 'cmdMe',
 		'whoami' -> 'cmdMe',
 		'locate <participant>' -> 'cmdLocate',
+		'spyglass <spyglass_feature>' -> 'cmdSpyglassSwitch',
 	},
 	'arguments' -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
 			, 'suggest' -> [0, 1, 2, 3, 4, 5] },
 		'participant' -> { 'type' -> 'players' },
+		'spyglass_feature' -> { 'type' -> 'string',
+			'options' -> [ 'builder', 'firework', 'fireball' ] }
 	}
+};
+
+global_capMarkerMap = {
+	'builder' -> 'ica.build_spyglasser',
+	'fireball' -> 'ica.fireball_spyglasser',
+	'firework' -> 'ica.firework_spyglasser',
 };
 
 tm_total() -> (
@@ -24,6 +33,14 @@ tm_per_goal() -> (
 	12000
 );
 
+lackOfAbilityReject() -> (
+	display_title(player(), 'actionbar', 'You don\'t have this ability.');
+);
+
+bystandReject() -> (
+	display_title(player(), 'actionbar', 'You can only bystand.');
+);
+
 cmdLocate(pname) -> (
 	if(!nbt_storage('ica:data'):'Started', (
 		print('Not started. use /ica-admin confirm to start.');
@@ -31,12 +48,12 @@ cmdLocate(pname) -> (
 	));
 	myself = player();
 	if(query(myself, 'has_scoreboard_tag', 'ica.deceased'), (
-		print('You can only bystand.');
+		bystandReject();
 		return(false);
 	));
 	if(!query(player(), 'has_scoreboard_tag', 'ica.coordinator'), (
-		print('You don\'t have this ability.');
-		return(false)
+		lackOfAbilityReject();
+		return(false);
 	));
 
 	p = player(pname:0);
@@ -79,10 +96,6 @@ cmdRefill() -> (
 	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
 		run('give @s minecraft:firework_rocket 64');
 	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser')
-		&& !nbt_storage('ica:data'):'Preparing', (
-			modify(myself, 'tag', 'ica.spyglass_fireball');
-	));
 );
 
 cmdList() -> (
@@ -119,8 +132,10 @@ cmdMe() -> (
 	career_hints = {
 		'Bystander' -> 'You have nothing to do, just watch.',
 		'Piggy' -> 'Complete all goals in time to win!',
-		'Hunter' -> 'Protect piggies and kill the wolf.',
-		'Wolf' -> 'Stop them complete the goals!',
+		'Hunter(Fireball)' -> 'Protect piggies and kill the wolf.',
+		'Hunter(Firework)' -> 'Protect piggies and kill the wolf.',
+		'Builder' -> 'Build protections and complete the goals!',
+		'Wolf' -> 'Stop them completing the goals!',
 	};
 	career = 'Bystander';
 
@@ -128,7 +143,13 @@ cmdMe() -> (
 		career = 'Piggy';
 	));
 	if(query(myself, 'has_scoreboard_tag', 'ica.hunter'), (
-		career = 'Hunter';
+		career = 'Hunter(Fireball)';
+	));
+	if(query(myself, 'has_scoreboard_tag', 'ica.hunter_firework'), (
+		career = 'Hunter(Firework)';
+	));
+	if(query(myself, 'has_scoreboard_tag', 'ica.builder'), (
+		career = 'Builder';
 	));
 	if(query(myself, 'has_scoreboard_tag', 'ica.wolf'), (
 		career = 'Wolf';
@@ -141,8 +162,14 @@ cmdMe() -> (
 	if(query(myself, 'has_scoreboard_tag', 'ica.flyer'), (
 		print('[ability] flyer: you can fly with an elytra.');
 	));
-	if(query(myself, 'has_scoreboard_tag', 'ica.spyglasser'), (
-		print('[ability] spyglasser: You can shoot fireballs with a spyglass(except in prepare stage).');
+	if(query(myself, 'has_scoreboard_tag', 'ica.fireball_spyglasser'), (
+		print('[ability] shooter: You can shoot fireballs with a spyglass(except in prepare stage).');
+	));
+	if(query(myself, 'has_scoreboard_tag', 'ica.firework_spyglasser'), (
+		print('[ability] launcher: You can launch fireworks with a spyglass(except in prepare stage).');
+	));
+	if(query(myself, 'has_scoreboard_tag', 'ica.build_spyglasser'), (
+		print('[ability] builder: You can build paths with a spyglass(except in prepare stage).');
 	));
 	// if(query(myself, 'has_scoreboard_tag', 'ica.kungfu_master'), (
 	// 	print('[ability] kungfu master: You can get a temporary slow-falling effect by using a feather.');
@@ -150,6 +177,34 @@ cmdMe() -> (
 	if(query(myself, 'has_scoreboard_tag', 'ica.coordinator'), (
 		print('[ability] coordinator: you can locate other participants.');
 	));
+);
+
+disableAllSpyglassAbilities(me) -> (
+	modify(me, 'clear_tag', [ 'ica.spyglass_fireball', 'ica.spyglass_firework'
+		, 'ica.spyglass_builder' ]);
+);
+
+cmdSpyglassSwitch(feature_id) -> (
+	if(!nbt_storage('ica:data'):'Started', (
+		print('Not started. use /ica-admin confirm to start.');
+		return(false)
+	));
+	me = player();
+	if(nbt_storage('ica:data'):'Preparing', (
+		display_title(me, 'actionbar', 'Currently preparing, please switch later.');
+		return(false)
+	));
+	if(query(me, 'has_scoreboard_tag', 'ica.deceased'), (
+		bystandReject();
+		return(false);
+	));
+
+	if(query(me, 'has_scoreboard_tag', global_capMarkerMap:feature_id), (
+		disableAllSpyglassAbilities(me);
+		modify(me, 'tag', str('ica.spyglass_%s', feature_id));
+	), (
+		lackOfAbilityReject();
+	))
 );
 
 cmdSubmit(slot_id) -> (
@@ -181,7 +236,6 @@ cmdSubmit(slot_id) -> (
 	));
 	put(nbt_storage('ica:data'):(pkey+'.Completed'), '1b');
 	iv = bossbar('ica:collected', 'value') + 1;
-	print(iv);
 	bossbar('ica:collected', 'value', iv);
-	print('OK.');
+	display_title(me, 'actionbar', 'OK.');
 );

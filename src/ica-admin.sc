@@ -32,9 +32,11 @@ clearBossbars() -> (
 
 cleanPlayerTags() -> (	
 	for(player('all'), modify(_, 'clear_tag', ['ica.piggy'
-		, 'ica.wolf', 'ica.hunter', 'ica.spyglasser', 'ica.spyglass_fireball'
+		, 'ica.wolf', 'ica.hunter', 'ica.fireball_spyglasser', 'ica.spyglass_fireball'
 		, 'ica.voter', 'ica.flyer', 'ica.spyglasser_cooldown'
-		, 'ica.coordinator', 'ica.deceased', 'ica.participant']));
+		, 'ica.coordinator', 'ica.deceased', 'ica.participant'
+		, 'ica.firework_spyglasser', 'ica.build_spyglasser'
+		, 'ica.spyglass_builder', 'ica.spyglass_firework']));
 );
 
 endCleanup() -> (
@@ -125,18 +127,22 @@ getFirstUnsetGoal() -> (
 	return(6);
 );
 
+actionbarMessage(msg) -> (
+	display_title(player('all'), 'actionbar', msg, 100, 100, 100);
+);
+
 warnDeadline(dt) -> (
 	if (dt == 1200, (
-		print(player('all'), '[WARN] Submission deadline in 1 minute.');
+		actionbarMessage('[WARN] Submission deadline in 1 minute.');
 	));
 	if (dt == 600, (
-		print(player('all'), '[WARN] Submission deadline in 30 seconds.');
+		actionbarMessage('[WARN] Submission deadline in 30 seconds.');
 	));
 	if (dt == 300, (
-		print(player('all'), '[WARN] Submission deadline in 15 seconds.');
+		actionbarMessage('[WARN] Submission deadline in 15 seconds.');
 	));
 	if (dt <= 200 && dt % 20 == 0, (
-		print(player('all'), str('[WARN] Submission deadline in %d second%s!'
+		actionbarMessage(str('[WARN] Submission deadline in %d second%s!'
 			, dt / 20, if(dt > 20, 's', '')));
 	));
 );
@@ -152,13 +158,13 @@ electionKill(pname) -> (
 
 checkVotes(tm) -> (
 	if(tm % 12000 == 3600, (
-		print(player('all'), '[WARN] Vote ends in 1 minute');
+		actionbarMessage('[WARN] Vote ends in 1 minute');
 		return(false);
 	));
 	if(tm % 12000 == 2400, (
 		max_p = findVoteMax();
 		phint = if(max_p == null, (
-			'nobody was elected.'
+			'nobody was elected'
 		), (
 			ele_p = player(max_p);
 			schedule(200, 'electionKill', ele_p);
@@ -195,9 +201,13 @@ startCollectStage() -> (
 	bossbar('ica:collected', 'value', 0);
 
 	for(player('all'), (
-		if(query(_, 'has_scoreboard_tag', 'ica.spyglasser'), (
+		if(query(_, 'has_scoreboard_tag', 'ica.fireball_spyglasser'), (
 			modify(_, 'tag', 'ica.spyglass_fireball');
-		));
+		), if(query(_, 'has_scoreboard_tag', 'ica.firework_spyglasser'), (
+			modify(_, 'tag', 'ica.spyglass_firework');
+		), if(query(_, 'has_scoreboard_tag', 'ica.build_spyglasser'), (
+			modify(_, 'tag', 'ica.spyglass_builder');
+		))));
 	));
 
 	put(nbt_storage('ica:data'):'Preparing', '0b');
@@ -262,7 +272,9 @@ cmdStart() -> (
 	participants_list = shuffleList(participants_list);
 	wolf_n = countCareer('wolf');
 	hunter_n = countCareer('hunter') + wolf_n;
-	if(hunter_n > length(participants_list), (
+	builder_n = countCareer('builder') + hunter_n;
+	firework_hunter_n = countCareer('firework_hunter') + builder_n;
+	if(firework_hunter_n > length(participants_list), (
 		print('Not enough players online.');
 		return(false);
 	));
@@ -280,8 +292,10 @@ cmdStart() -> (
 	for(participants_list, (
 		modify(_, 'tag', ['ica.voter', 'ica.flyer', 'ica.participant']);
 		career_tag = 'ica.piggy';
-		if(_i < hunter_n, career_tag = ['ica.hunter', 'ica.spyglasser', 'ica.spyglasser_cooldown']);
-		if(_i < wolf_n, career_tag = ['ica.wolf', 'ica.spyglasser', 'ica.coordinator']);
+		if(_i < firework_hunter_n, career_tag = ['ica.hunter_firework', 'ica.firework_spyglasser', 'ica.spyglasser_cooldown']);
+		if(_i < builder_n, career_tag = ['ica.builder', 'ica.build_spyglasser']);
+		if(_i < hunter_n, career_tag = ['ica.hunter', 'ica.fireball_spyglasser', 'ica.spyglasser_cooldown']);
+		if(_i < wolf_n, career_tag = ['ica.wolf', 'ica.fireball_spyglasser', 'ica.firework_spyglasser', 'ica.build_spyglasser', 'ica.coordinator']);
 
 		modify(_, 'tag', career_tag);
 	));
@@ -293,6 +307,7 @@ cmdStart() -> (
 	run('time set day');
 	run('gamerule keepInventory true');
 	run('gamerule playersSleepingPercentage 0');
+	run('gamerule randomTickSpeed 12');
 	run('worldborder set 10000');
 );
 
