@@ -38,7 +38,7 @@ cmdSet(slot_id, goal_item_tuple) -> (
 	put(nbt_storage('ica:data'), 'Goals', etag, -1);
 	print(format(' ' + str(getLocaleKey('goal.set.before'), slot_id)
 		, 'b ' + item_display_name(goal_item_tuple:0), '^ minecraft:' + goal_item_tuple:0
-		, ' ' + getLocaleKey('goal.set.after'));
+		, ' ' + getLocaleKey('goal.set.after')));
 	if(getFirstUnsetGoal() > 5, (
 		print(format(' ' + getLocaleKey('hint.allset.before')
 			, 'mb /ica-admin confirm', '?/ica-admin confirm'

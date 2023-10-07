@@ -26,6 +26,7 @@ cmdLoad() -> (
 	run('script load ica');
 	run('script load ica-vote');
 	run('script load ica-settings');
+	run('script load ica-i18n');
 );
 
 cmdShowW() -> (

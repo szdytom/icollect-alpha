@@ -1,6 +1,10 @@
 __config() -> {
     'scope' -> 'global',
     'exports' -> ['getLocaleKey', 'useIcaInstead', 'startedReject', 'pendingReject'],
+    'command_permission' -> 'ops',
+    'commands' -> {
+        'dump' -> 'cmdDump',
+    },
 };
 
 global_TranslateKeysEnUS = {
@@ -47,7 +51,7 @@ global_TranslateKeysEnUS = {
     'career.display.hunter' -> ' - Hunter(Fireball): %d participants.',
     'career.display.firework_hunter' -> ' - Hunter(Firework): %d participants.',
     'career.display.builder' -> ' - Builder: %d participants.',
-    'career.display.piggy' -> '- Piggies: whatever the rest.',
+    'career.display.piggy' -> ' - Piggies: whatever the rest.',
     'career.set' -> 'Career %s set to %d participants.',
 
     'career.title.bystander' -> 'Bystander',
@@ -106,7 +110,7 @@ global_TranslateKeysEnUS = {
     'list.item.id' -> '#%d: ',
 
     'vote.title' -> 'There are %d candidates:',
-    'vote.deceased' -> '[deceased]',
+    'vote.deceased' -> '[Deceased]',
     'vote.amount.1' -> '[%02d vote]',
     'vote.amount.2' -> '[%02d votes]',
     'vote.footer' -> 'Current elected: ',
@@ -123,6 +127,13 @@ global_TranslateKeysEnUS = {
     'locate.offline' -> 'Player %s is not online.',
 
     'seed.title' -> 'Map Seed: ',
+
+    'ps.wolf' -> '[Wolf]',
+    'ps.button.locate' -> '[Click To Locate]',
+    'ps.marker' -> ' - ',
+    'ps.me' -> '[You]',
+    'ps.offline' -> '[Offline]',
+    'ps.title' -> 'There are %d participants:',
 
     'misc.clipboard' -> 'Click To Copy',
 
@@ -149,4 +160,8 @@ pendingReject() -> (
     print(format(' ' + getLocaleKey('reject.pending.before')
         , 'mb /ica-admin confirm', '?/ica-admin confirm'
         , ' ' + getLocaleKey('reject.pending.after')));
+);
+
+cmdDump() -> (
+    write_file('ica-i18n-keys.json', 'shared_json', global_TranslateKeysEnUS);
 );

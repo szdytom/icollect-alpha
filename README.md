@@ -23,7 +23,7 @@ ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric
 
 1. 发射火球：发射与TNT爆炸威力相同的恶魂火球。
 2. 发射烟花：发射可以造成大量伤害的烟花火箭。
-3. 建筑烟花：发射在其下方生成道路的烟花火箭（道路建筑材料为_石化橡木台阶_）。
+3. 建筑烟花：发射在其下方生成道路的烟花火箭（道路建筑材料为 _石化橡木台阶_）。
 
 【指令使用】
 1. `/ica`：列出物品收集目标和时限信息
@@ -33,6 +33,7 @@ ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric
 5. `/ica refill`：刷新自己的烟花
 6. `/ica locate <name>`：定位某一玩家位置，空手使用时可获得指向位置的指南针（不能跨维度定位）
 7. `/ica spyglass <feature>`：切换望远镜的能力
+7. `/ica ps`：查看玩家列表，狼人可看到队友
 7. `/ica-vote`：查看当前投票状态信息
 8. `/ica-vote abstain`：投弃权票
 9. `/ica-vote sus <name>`：投票给某一玩家
@@ -43,14 +44,15 @@ ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric
 
 首先需要安装 Fabric 和 Fabric Carpet 模组，然后将 `src` 目录下的 `.sc` 代码复制到世界的 `script` 文件夹下。打开世界后，使用 `/script load ica-loader` 加载加载脚本，使用命令 `/ica-loader` 加载各个模块：
 
-- 使用 `/ica-setting career <career> <number>` 设置职业的玩家数量
-- 使用 `/ica-setting add <item>` 设置一个未使用的收集目标
-- 使用 `/ica-setting set <slot> <item>` 设置一个指定的收集目标
-- 使用 `/ica-admin confirm` 开始游戏，开始时请保证所有参与者在线
+- `/ica-setting career <career> <number>` 设置职业的玩家数量
+- `/ica-setting add <item>` 设置一个未使用的收集目标
+- `/ica-setting set <slot> <item>` 设置一个指定的收集目标
+- `/ica-admin confirm` 开始游戏，开始时请保证所有参与者在线
 
 ## 调试命令
 
-- 使用 `/ica-effect-applier enable` 强制启用状态效果广播
-- 使用 `/ica-effect-applier enable` 强制禁用状态效果广播
-- 使用 `/ica-admin cancel` 终止游戏
-
+- `/ica-effect-applier enable` 强制启用状态效果广播
+- `/ica-effect-applier enable` 强制禁用状态效果广播
+- `/ica-admin reset` 终止游戏
+- `/ica-i18n dump` 向 JSON 文件中写入本地化值
+- `/bossbar set ica:prepare_counter value 20` 强制跳过准备阶段

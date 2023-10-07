@@ -9,6 +9,8 @@ __config() -> {
 		'whoami' -> 'cmdMe',
 		'locate <participant>' -> 'cmdLocate',
 		'spyglass <spyglass_feature>' -> 'cmdSpyglassSwitch',
+		'ps' -> 'cmdListPalyer',
+		'playerlist' -> 'cmdListPalyer',
 	},
 	'arguments' -> {
 		'slot' -> { 'type' -> 'int', 'min' -> 0, 'max' -> 5
@@ -20,7 +22,8 @@ __config() -> {
 			)
 		)},
 		'spyglass_feature' -> { 'type' -> 'string',
-			'options' -> [ 'builder', 'firework', 'fireball' ] }
+			'options' -> [ 'builder', 'firework', 'fireball' ] },
+		'message' -> { 'type' -> 'text' },
 	}
 };
 
@@ -242,4 +245,35 @@ cmdSubmit(slot_id) -> (
 	iv = bossbar('ica:collected', 'value') + 1;
 	bossbar('ica:collected', 'value', iv);
 	print(getLocaleKey('submit.success'));
+);
+
+cmdListPalyer() -> (
+	if(!nbt_storage('ica:data'):'Started', (
+		pendingReject();
+		return(false)
+	));
+	me = player();
+
+	cand_names = parse_nbt(nbt_storage('ica:voting'):'Candidates');
+	cand_n = length(cand_names);
+	print(str(getLocaleKey('ps.title'), cand_n));
+	for(cand_names, (
+		p = player(_);
+		fcomp = [' ' + getLocaleKey('ps.marker')];
+		if(p == null, (
+			put(fcomp, null, 'g ' + _);
+			put(fcomp, null, '  ' + getLocaleKey('ps.offline'));
+		), (
+			put(fcomp, null, if(query(p, 'has_scoreboard_tag', 'ica.deceased')
+				, 's ', 'b ') + _);
+			if(p == me, (
+				put(fcomp, null, '  ' + getLocaleKey('ps.me'));
+			));
+			if(query(me, 'has_scoreboard_tag', 'ica.wolf')
+				&& query(p, 'has_scoreboard_tag', 'ica.wolf'), (
+				put(fcomp, null, '  ' + getLocaleKey('ps.wolf'));
+			));
+		));
+		print(format(fcomp));
+	));
 );
