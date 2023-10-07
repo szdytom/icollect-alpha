@@ -2,6 +2,7 @@ __config() -> {
 	'scope' -> 'global',
 	'command_permission' -> 'ops',
 	'commands' -> {
+		'' -> 'cmdList',
 		'list' -> 'cmdList',
 		'set <slot> <item>' -> 'cmdSet',
 		'add <item>' -> 'cmdSetAppend',
@@ -23,7 +24,7 @@ import('ica-libs', 'countCareer', 'getFirstUnsetGoal');
 
 cmdList() -> (
 	useIcaInstead();
-	run('/ica');
+	run('/ica list');
 );
 
 cmdSet(slot_id, goal_item_tuple) -> (

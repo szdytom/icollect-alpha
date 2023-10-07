@@ -10,11 +10,13 @@ __config() -> {
 	},
 };
 
+import('ica-i18n', 'getLocaleKey');
+
 getStatus() -> (
 	if(global_enabled, (
-		print('effect-applier: on')
+		print(getLocaleKey('effect-applier.on'));
 	), (
-		print('effect-applier: off')
+		print(getLocaleKey('effect-applier.off'));
 	))
 );
 

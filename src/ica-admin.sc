@@ -2,6 +2,7 @@ __config() -> {
 	'scope' -> 'global',
 	'command_permission' -> 'ops',
 	'commands' -> {
+		'' -> 'cmdList',
 		'list' -> 'cmdList',
 		'confirm' -> 'cmdStart',
 		'reset' -> 'cmdResetClear'
@@ -9,9 +10,8 @@ __config() -> {
 };
 
 import('ica-libs', 'shuffleList', 'countCareer', 'playerListNbt'
-	, 'findVoteMax', 'resetVotes', 'getFirstUnsetGoal', 'useIcaInstead'
-	, 'startedReject');
-import('ica-i18n', 'getLocaleKey');
+	, 'findVoteMax', 'resetVotes', 'getFirstUnsetGoal');
+import('ica-i18n', 'getLocaleKey', 'useIcaInstead', 'startedReject');
 
 __on_start() -> (
 	if(nbt_storage('ica:data'):'Goals' == null, (
@@ -303,5 +303,5 @@ cmdStart() -> (
 
 cmdList() -> (
 	useIcaInstead();
-	run('/ica');
+	run('/ica list');
 );

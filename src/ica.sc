@@ -1,6 +1,6 @@
 __config() -> {
 	'commands' -> {
-		'' -> 'cmdList',
+		'' -> 'cmdAllInfo',
 		'list' -> 'cmdList',
 		'submit <slot>' -> 'cmdSubmit',
 		'refill' -> 'cmdRefill',
@@ -273,7 +273,19 @@ cmdListPalyer() -> (
 				&& query(p, 'has_scoreboard_tag', 'ica.wolf'), (
 				put(fcomp, null, '  ' + getLocaleKey('ps.wolf'));
 			));
+			if(me != p && query(me, 'has_scoreboard_tag', 'ica.coordinator')
+				&& !query(p, 'has_scoreboard_tag', 'ica.deceased'), (
+				put(fcomp, null, 'mb  ' + getLocaleKey('ps.button.locate'));
+				put(fcomp, null, '!/ica locate ' + _);
+			));
 		));
 		print(format(fcomp));
 	));
+);
+
+cmdAllInfo() -> (
+	if(nbt_storage('ica:data'):'Started', (
+		cmdListPalyer();
+	));
+	cmdList();
 );

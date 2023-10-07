@@ -137,6 +137,9 @@ global_TranslateKeysEnUS = {
 
     'misc.clipboard' -> 'Click To Copy',
 
+    'effect-applier.on' -> 'effect-applier status: enabled.',
+    'effect-applier.off' -> 'effect-applier status: disabled.',
+
     'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 方而静\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.'
 };
 
@@ -146,7 +149,7 @@ getLocaleKey(keyid) -> (
 
 useIcaInstead() -> (
     print(format('d ' + getLocaleKey('hint.instead.before')
-        , 'mb /ica', '?/ica'
+        , 'mb /ica list', '?/ica list'
         , 'd ' + getLocaleKey('hint.instead.after')));
 );
 

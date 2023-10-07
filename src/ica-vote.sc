@@ -17,11 +17,11 @@ __config() -> {
 };
 
 import('ica-libs', 'listContain', 'countVotes', 'findVoteMax', 'countAbstainVotes');
-import('ica-i18n', 'getLocaleKey');
+import('ica-i18n', 'getLocaleKey', 'pendingReject');
 
 cmdInfo() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	cand_names = parse_nbt(nbt_storage('ica:voting'):'Candidates');
@@ -57,7 +57,7 @@ cmdInfo() -> (
 
 beforeVoteChecks() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	myself = player();
