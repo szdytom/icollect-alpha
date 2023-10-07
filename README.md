@@ -42,7 +42,7 @@ ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric
 
 ## 管理员命令
 
-首先需要安装 Fabric 和 Fabric Carpet 模组，然后将 `src` 目录下的 `.sc` 代码复制到世界的 `script` 文件夹下。打开世界后，使用 `/script load ica-loader` 加载加载脚本，使用命令 `/ica-loader` 加载各个模块：
+首先需要安装 [Fabric](https://fabricmc.net/) 和 [Fabric Carpet](https://github.com/gnembon/fabric-carpet) 模组，然后将 `src` 目录下的 `.sc` 代码复制到世界的 `script` 文件夹下。打开世界后，使用 `/script load ica-loader` 加载加载脚本，使用命令 `/ica-loader` 加载各个模块：
 
 - `/ica-setting career <career> <number>` 设置职业的玩家数量
 - `/ica-setting add <item>` 设置一个未使用的收集目标
@@ -52,7 +52,8 @@ ICollect-Alpha 是一个使用 [Carpet 脚本](https://github.com/gnembon/fabric
 ## 调试命令
 
 - `/ica-effect-applier enable` 强制启用状态效果广播
-- `/ica-effect-applier enable` 强制禁用状态效果广播
+- `/ica-effect-applier disable` 强制禁用状态效果广播
 - `/ica-admin reset` 终止游戏
 - `/ica-i18n dump` 向 JSON 文件中写入本地化值
 - `/bossbar set ica:prepare_counter value 20` 强制跳过准备阶段
+- `/tick freeze` 冻结/解冻时间
