@@ -19,7 +19,7 @@ CopyrightInfo() -> (
 );
 
 cmdLoad() -> (
-	print(getLocaleKey('license.header'));
+	print(str(getLocaleKey('license.header'), '方而静'));
 	run('script load ica-admin');
 	run('script load ica-effect-applier');
 	run('script load ica-spyglass');

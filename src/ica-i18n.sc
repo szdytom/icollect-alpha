@@ -140,7 +140,7 @@ global_TranslateKeysEnUS = {
     'effect-applier.on' -> 'effect-applier status: enabled.',
     'effect-applier.off' -> 'effect-applier status: disabled.',
 
-    'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 方而静\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.'
+    'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 %s\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.'
 };
 
 getLocaleKey(keyid) -> (
@@ -166,5 +166,5 @@ pendingReject() -> (
 );
 
 cmdDump() -> (
-    write_file('ica-i18n-keys.json', 'shared_json', global_TranslateKeysEnUS);
+    write_file('ica-i18n-table', 'shared_json', global_TranslateKeysEnUS);
 );
