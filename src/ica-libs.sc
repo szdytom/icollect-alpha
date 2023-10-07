@@ -1,7 +1,8 @@
 __config() -> {
     'scope' -> 'global',
     'exports' -> ['shuffleList', 'countCareer', 'findVoteMax', 'resetVotes'
-        , 'playerListNbt', 'listContain', 'countVotes', 'countAbstainVotes'],
+        , 'playerListNbt', 'listContain', 'countVotes', 'countAbstainVotes'
+        , 'getFirstUnsetGoal'],
 };
 
 shuffleList(list) -> (
@@ -74,4 +75,14 @@ findVoteMax() -> (
 
 resetVotes() -> (
     put(nbt_storage('ica:voting'), 'Votes', '[]');
+);
+
+getFirstUnsetGoal() -> (
+    c_for(i = 0, i <= 5, i = i + 1, (
+        p = nbt_storage('ica:data'):str('Goals[{Slot: %db}]', i);
+        if(p == null, (
+            return(i);
+        ))
+    ));
+    return(6);
 );

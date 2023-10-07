@@ -26,7 +26,7 @@ cmdInfo() -> (
 	));
 	cand_names = parse_nbt(nbt_storage('ica:voting'):'Candidates');
 	cand_n = length(cand_names);
-	print(str(getLocaleKey('vote.title', cand_n));
+	print(str(getLocaleKey('vote.title', cand_n)));
 	for(cand_names, (
 		p = player(_);
 		v_cnt = countVotes(_);

@@ -4,13 +4,13 @@ __config() -> {
 	'commands' -> {
 		'list' -> 'cmdList',
 		'confirm' -> 'cmdStart',
-		'reset clear' -> 'cmdResetClear',
-		'reset schedule' -> 'cmdReschedule'
+		'reset' -> 'cmdResetClear'
 	},
 };
 
 import('ica-libs', 'shuffleList', 'countCareer', 'playerListNbt'
-	, 'findVoteMax', 'resetVotes');
+	, 'findVoteMax', 'resetVotes', 'getFirstUnsetGoal', 'useIcaInstead'
+	, 'startedReject');
 import('ica-i18n', 'getLocaleKey');
 
 __on_start() -> (
@@ -121,16 +121,6 @@ endFinish() -> (
 	endCleanup();
 );
 
-getFirstUnsetGoal() -> (
-	c_for(i = 0, i <= 5, i = i + 1, (
-		p = nbt_storage('ica:data'):str('Goals[{Slot: %db}]', i);
-		if(p == null, (
-			return(i);
-		))
-	));
-	return(6);
-);
-
 actionbarMessage(msg) -> (
 	display_title(player('all'), 'actionbar', msg, 100, 100, 100);
 );
@@ -201,9 +191,9 @@ startCollectStage() -> (
 	schedule(20, 'runUpdateCollect');
 
 	clearBossbars();
-	createBossbar('ica:time_counter', format(getLocaleKey('bossbar.time.title'))
+	createBossbar('ica:time_counter', format('b ' + getLocaleKey('bossbar.time.title'))
 		, tm_total(), 'notched_6');
-	createBossbar('ica:collected', format(getLocaleKey('bossbar.progress.title'))
+	createBossbar('ica:collected', format('b ' + getLocaleKey('bossbar.progress.title'))
 		, 6, 'notched_6');
 	bossbar('ica:collected', 'value', 0);
 
@@ -243,14 +233,6 @@ cmdResetClear() -> (
 	endCleanup();
 );
 
-cmdReschedule() -> (
-	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
-		return(false)
-	));
-	schedule('runUpdateCollect', 20);
-);
-
 runUpdatePrepare() -> (
 	if(!nbt_storage('ica:data'):'Started', return());
 	if(!nbt_storage('ica:data'):'Preparing', return());
@@ -271,7 +253,7 @@ cmdStart() -> (
 	));
 
 	if(nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.started')));
+		startedReject();
 		return(false)
 	));
 
@@ -290,7 +272,7 @@ cmdStart() -> (
 	put(nbt_storage('ica:data'):'Preparing', '1b');
 	put(nbt_storage('ica:data'):'Goals[].Completed', '0b');
 
-	createBossbar('ica:prepare_counter', format(getLocaleKey('bossbar.prepare.title'))
+	createBossbar('ica:prepare_counter', format('b ' + getLocaleKey('bossbar.prepare.title'))
 		, tm_prepare(), null);
 	schedule(20, 'runUpdatePrepare');
 
@@ -320,6 +302,6 @@ cmdStart() -> (
 );
 
 cmdList() -> (
-	print(format(getLocaleKey('instead')));
+	useIcaInstead();
 	run('/ica');
 );

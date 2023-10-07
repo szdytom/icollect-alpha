@@ -18,27 +18,17 @@ __config() -> {
 	},
 };
 
-import('ica-i18n', 'getLocaleKey');
-import('ica-libs', 'countCareer');
-
-getFirstUnsetGoal() -> (
-	c_for(i = 0, i <= 5, i = i + 1, (
-		p = nbt_storage('ica:data'):str('Goals[{Slot: %db}]', i);
-		if(p == null, (
-			return(i);
-		))
-	));
-	return(6);
-);
+import('ica-i18n', 'getLocaleKey', 'useIcaInstead', 'startedReject', 'pendingReject');
+import('ica-libs', 'countCareer', 'getFirstUnsetGoal');
 
 cmdList() -> (
-	print(format(getLocaleKey('instead')));
+	useIcaInstead();
 	run('/ica');
 );
 
 cmdSet(slot_id, goal_item_tuple) -> (
 	if(nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.started')));
+		startedReject();
 		return(false)
 	));
 	pkey = str('Goals[{Slot: %db}]', slot_id);
@@ -46,7 +36,14 @@ cmdSet(slot_id, goal_item_tuple) -> (
 
 	if(nbt_storage('ica:data'):pkey != null, delete(nbt_storage('ica:data'):pkey));
 	put(nbt_storage('ica:data'), 'Goals', etag, -1);
-	print(str('Goal #%d set to %s.', slot_id, goal_item_tuple:0))
+	print(format(' ' + str(getLocaleKey('goal.set.before'), slot_id)
+		, 'b ' + item_display_name(goal_item_tuple:0), '^ minecraft:' + goal_item_tuple:0
+		, ' ' + getLocaleKey('goal.set.after'));
+	if(getFirstUnsetGoal() > 5, (
+		print(format(' ' + getLocaleKey('hint.allset.before')
+			, 'mb /ica-admin confirm', '?/ica-admin confirm'
+			, ' ' + getLocaleKey('hint.allset.after')));
+	));
 );
 
 cmdSetAppend(goal_item_tuple) -> (
@@ -54,7 +51,9 @@ cmdSetAppend(goal_item_tuple) -> (
 	if(missing_goal <= 5, (
 		cmdSet(missing_goal, goal_item_tuple)
 	), (
-		print(format(getLocaleKey('reject.goal.enough')))
+		print(format(' ' + getLocaleKey('reject.goal.enough.before')
+			, 'mb /ica-settings set <slot> <item>', '?/ica-settings set '
+			, ' ' + getLocaleKey('reject.goal.enough.after')));
 	));
 );
 
@@ -68,7 +67,7 @@ cmdListCareers() -> (
 
 cmdConfigCareer(cartype, ccount) -> (
 	if(nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.started')));
+		startedReject();
 		return(false)
 	));
 	pkey = str('Config[{Type: "%s"}].Count', cartype);

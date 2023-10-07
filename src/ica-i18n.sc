@@ -1,6 +1,6 @@
 __config() -> {
     'scope' -> 'global',
-    'exports' -> ['getLocaleKey'],
+    'exports' -> ['getLocaleKey', 'useIcaInstead', 'startedReject', 'pendingReject'],
 };
 
 global_TranslateKeysEnUS = {
@@ -18,10 +18,10 @@ global_TranslateKeysEnUS = {
     'submit.ddl.2' -> '[WARN] Submission deadline in %d seconds.',
     'submit.ddl.3' -> '[WARN] Submission deadline in %d second.',
     'submit.success' -> 'OK.',
-    'submit.missing.before' -> ' Item ',
-    'submit.missing.after' -> '  not found.',
-    'submit.already.before' -> ' Item ',
-    'submit.already.after' -> '  has already been collected.',
+    'submit.missing.before' -> 'Item ',
+    'submit.missing.after' -> ' not found.',
+    'submit.already.before' -> 'Item ',
+    'submit.already.after' -> ' has already been collected.',
 
     'election.kill' -> 'Election victim %s killed.',
     'election.ddl' -> '[WARN] Vote ends in 1 minute.',
@@ -30,18 +30,24 @@ global_TranslateKeysEnUS = {
     'election.new' -> 'New election round started.',
     'election.result' -> 'Election result: %s.',
 
-    'instead' -> 'd Please use /ica instead.',
+    'hint.instead.before' -> 'Please use ',
+    'hint.instead.after' -> ' instead.',
+    'hint.allset.before' -> 'All goals are set, you can use ',
+    'hint.allset.after' -> ' to start.',
 
-    'bossbar.prepare.title' -> 'b Preparing',
-    'bossbar.time.title' -> 'b Time Left',
-    'bossbar.progress.title' -> 'b Collected',
+    'goal.set.before' -> 'Goal #%d set to ',
+    'goal.set.after' -> '.',
+
+    'bossbar.prepare.title' -> 'Preparing',
+    'bossbar.time.title' -> 'Time Left',
+    'bossbar.progress.title' -> 'Collected',
 
     'career.display.title' -> 'Career configs are:',
     'career.display.wolf' -> ' - Wolf: %d participants.',
     'career.display.hunter' -> ' - Hunter(Fireball): %d participants.',
     'career.display.firework_hunter' -> ' - Hunter(Firework): %d participants.',
     'career.display.builder' -> ' - Builder: %d participants.',
-    'career.display.piggy' -> 'Career configs are:',
+    'career.display.piggy' -> '- Piggies: whatever the rest.',
     'career.set' -> 'Career %s set to %d participants.',
 
     'career.title.bystander' -> 'Bystander',
@@ -76,11 +82,14 @@ global_TranslateKeysEnUS = {
 
     'ablity.format' -> '[ablity] %s: %s',
 
-    'reject.pending' -> [' Not started. use ', 'mb /ica-admin confirm', '?/ica-admin confirm', '  to start.'],
-    'reject.started' -> [' Already started, use ', 'mb /ica-admin reset clear', '?/ica-admin reset clear', '  to cancel.'],
+    'reject.pending.before' -> 'Not started, use ',
+    'reject.pending.after' -> ' to start.',
+    'reject.started.before' -> 'Already started, use ',
+    'reject.started.after' -> ' to cancel.',
     'reject.leckplayer' -> ' Not enough players are online.',
     'reject.goal.missing' -> 'Goal #%d is unset.',
-    'reject.goal.enough' -> [' All are goals set, please use ', 'mb /ica-settings set <slot> <item>', '  to replace.'],
+    'reject.goal.enough.before' -> 'All are goals set, please use ',
+    'reject.goal.enough.after' -> ' to replace.',
     'reject.spyglass' -> 'Spyglass too hot, please wait another %.2f seconds to use again.',
     'reject.unable' -> 'You don\'t have this ability.',
     'reject.bystand' -> 'You can only bystand.',
@@ -117,9 +126,27 @@ global_TranslateKeysEnUS = {
 
     'misc.clipboard' -> 'Click To Copy',
 
-    'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 方而静\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.',
+    'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 方而静\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.'
 };
 
 getLocaleKey(keyid) -> (
     if(has(global_TranslateKeysEnUS:keyid), global_TranslateKeysEnUS:keyid, 'tkey:' + keyid)
+);
+
+useIcaInstead() -> (
+    print(format('d ' + getLocaleKey('hint.instead.before')
+        , 'mb /ica', '?/ica'
+        , 'd ' + getLocaleKey('hint.instead.after')));
+);
+
+startedReject() -> (
+    print(format(' ' + getLocaleKey('reject.started.before')
+        , 'mb /ica-admin reset', '?/ica-admin reset'
+        , ' ' + getLocaleKey('reject.started.after')));
+);
+
+pendingReject() -> (
+    print(format(' ' + getLocaleKey('reject.pending.before')
+        , 'mb /ica-admin confirm', '?/ica-admin confirm'
+        , ' ' + getLocaleKey('reject.pending.after')));
 );

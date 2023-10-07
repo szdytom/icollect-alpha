@@ -25,21 +25,13 @@ __config() -> {
 };
 
 import('ica-libs', 'listContain');
-import('ica-i18n', 'getLocaleKey');
+import('ica-i18n', 'getLocaleKey', 'startedReject', 'pendingReject');
 
 global_capMarkerMap = {
 	'builder' -> 'ica.build_spyglasser',
 	'fireball' -> 'ica.fireball_spyglasser',
 	'firework' -> 'ica.firework_spyglasser',
 };
-
-tm_total() -> (
-	72000
-);
-
-tm_per_goal() -> (
-	12000
-);
 
 lackOfAbilityReject() -> (
 	print(getLocaleKey('reject.unable'));
@@ -51,7 +43,7 @@ bystandReject() -> (
 
 cmdLocate(pname) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	myself = player();
@@ -101,7 +93,7 @@ cmdSeed() -> (
 
 cmdRefill() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	myself = player();
@@ -162,7 +154,7 @@ cmdList() -> (
 
 cmdMe() -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	myself = player();
@@ -193,7 +185,7 @@ disableAllSpyglassAbilities(me) -> (
 
 cmdSpyglassSwitch(feature_id) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	me = player();
@@ -216,7 +208,7 @@ cmdSpyglassSwitch(feature_id) -> (
 
 cmdSubmit(slot_id) -> (
 	if(!nbt_storage('ica:data'):'Started', (
-		print(format(getLocaleKey('reject.pending')));
+		pendingReject();
 		return(false)
 	));
 	if(nbt_storage('ica:data'):'Preparing', (
@@ -230,17 +222,20 @@ cmdSubmit(slot_id) -> (
 	));
 
 	pkey = str('Goals[{Slot: %db}]', slot_id);
+	g_item = nbt_storage('ica:data'):pkey:'Item';
 	if(nbt_storage('ica:data'):pkey:'Completed', (
-		print(format(getLocaleKey('submit.already.before'))
-			+ item_display_name(nbt_storage('ica:data'):pkey:'Item')
-			+ format(getLocaleKey('submit.already.after')));
+		print(format(' ' + getLocaleKey('submit.already.before')
+			, 'b ' + item_display_name(g_item)
+			, '^ minecraft:' + g_item
+			, ' ' + getLocaleKey('submit.already.after')));
 		return()
 	));
 
-	if(inventory_remove(me, nbt_storage('ica:data'):pkey:'Item', 1) == 0, (
-		print(format(getLocaleKey('submit.missing.before'))
-			+ item_display_name(nbt_storage('ica:data'):pkey:'Item')
-			+ format(getLocaleKey('submit.missing.after')));
+	if(inventory_remove(me, g_item, 1) == 0, (
+		print(format(' ' + getLocaleKey('submit.missing.before')
+			, 'b ' + item_display_name(g_item)
+			, '^ mincraft:' + g_item
+			, ' ' + getLocaleKey('submit.missing.after')));
 		return()
 	));
 	put(nbt_storage('ica:data'):(pkey+'.Completed'), '1b');

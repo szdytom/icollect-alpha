@@ -21,11 +21,11 @@ getStatus() -> (
 updateEffects() -> (
 	if(global_enabled, (
 		for(player('all'), (
-			modify(_, 'effect', 'regeneration', 600, 1, false, true);
-			modify(_, 'effect', 'absorption', 600, 2, false, true);
+			modify(_, 'effect', 'regeneration', 400, 1, false, true);
+			modify(_, 'effect', 'absorption', 400, 2, false, true);
 		));
 	));
-	schedule(400, 'updateEffects');
+	schedule(200, 'updateEffects');
 );
 
 setBlock(pos, use_upper_half) -> (
