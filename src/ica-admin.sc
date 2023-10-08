@@ -108,7 +108,7 @@ endGameTitle(p, m, s) -> (
 endTimeout(iv) -> (
 	endGameTitle(getPigPlayers(), getLocaleKey('pig.timeout.title')
 		, str(getLocaleKey('pig.timeout.subtitle'), iv));
-	endGameTitle(getWolfPlayers(), getLocaleKey('wolf.timeout.subtitle')
+	endGameTitle(getWolfPlayers(), getLocaleKey('wolf.timeout.title')
 		, str(getLocaleKey('wolf.timeout.subtitle'), iv));
 	endCleanup();
 );
@@ -264,7 +264,7 @@ cmdStart() -> (
 	builder_n = countCareer('builder') + hunter_n;
 	firework_hunter_n = countCareer('firework_hunter') + builder_n;
 	if(firework_hunter_n > length(participants_list), (
-		print(format(getLocaleKey('reject.leckplayer')));
+		print(getLocaleKey('reject.leckplayer'));
 		return(false);
 	));
 

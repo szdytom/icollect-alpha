@@ -26,7 +26,7 @@ cmdInfo() -> (
 	));
 	cand_names = parse_nbt(nbt_storage('ica:voting'):'Candidates');
 	cand_n = length(cand_names);
-	print(str(getLocaleKey('vote.title', cand_n)));
+	print(str(getLocaleKey('vote.title'), cand_n));
 	for(cand_names, (
 		p = player(_);
 		v_cnt = countVotes(_);
@@ -39,7 +39,7 @@ cmdInfo() -> (
 			print(format(' ' + getLocaleKey('vote.marker')
 				+ str(getLocaleKey('vote.amount.' + if(v_cnt > 1, '2', '1')), v_cnt)
 				, 'b ' + _
-				, 'mb' + getLocaleKey('vote.button.vote')
+				, 'mb  ' + getLocaleKey('vote.button.vote')
 				, '!/ica-vote sus ' + _));
 		));
 	));
@@ -47,7 +47,7 @@ cmdInfo() -> (
 	print(format(' ' + getLocaleKey('vote.marker')
 				+ str(getLocaleKey('vote.amount.' + if(abv_cnt > 1, '2', '1')), abv_cnt)
 				, 'gb ' + getLocaleKey('vote.abstain')
-				, 'mb' + getLocaleKey('vote.button.abstain')
+				, 'mb  ' + getLocaleKey('vote.button.abstain')
 				, '!/ica-vote abstain'));
 
 	max_p = findVoteMax();

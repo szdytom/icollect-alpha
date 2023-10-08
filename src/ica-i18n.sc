@@ -7,7 +7,7 @@ __config() -> {
     },
 };
 
-global_TranslateKeysEnUS = {
+global_TranslateKeysEnCN = {
     'pig.timeout.title' -> 'Timeout!',
     'pig.timeout.subtitle' -> 'You didn\'t complete %d goals in time',
     'wolf.timeout.title' -> 'You won!',
@@ -90,7 +90,7 @@ global_TranslateKeysEnUS = {
     'reject.pending.after' -> ' to start.',
     'reject.started.before' -> 'Already started, use ',
     'reject.started.after' -> ' to cancel.',
-    'reject.leckplayer' -> ' Not enough players are online.',
+    'reject.leckplayer' -> 'Not enough players are online.',
     'reject.goal.missing' -> 'Goal #%d is unset.',
     'reject.goal.enough.before' -> 'All are goals set, please use ',
     'reject.goal.enough.after' -> ' to replace.',
@@ -111,8 +111,8 @@ global_TranslateKeysEnUS = {
 
     'vote.title' -> 'There are %d candidates:',
     'vote.deceased' -> '[Deceased]',
-    'vote.amount.1' -> '[%02d vote]',
-    'vote.amount.2' -> '[%02d votes]',
+    'vote.amount.1' -> '[%02d vote]  ',
+    'vote.amount.2' -> '[%02d votes] ',
     'vote.footer' -> 'Current elected: ',
     'vote.nobody' -> '(nobody)',
     'vote.abstain' -> '(abstain)',
@@ -143,8 +143,146 @@ global_TranslateKeysEnUS = {
     'license.header' -> 'ICollect-Alpha, Copyright (C) 2023 %s\nICollect-Alpha comes with ABSOLUTELY NO WARRANTY;\nfor details type \'/ica-loader show w\'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type \'/ica-loader show c\' for details.'
 };
 
+global_TranslateKeysZhHans = {
+    'pig.timeout.title' -> '超时！',
+    'pig.timeout.subtitle' -> '第 %d 个收集目标超时',
+    'wolf.timeout.title' -> '取得胜利！',
+    'wolf.timeout.subtitle' -> '他们的收集任务失败了，做得好',
+
+    'pig.complete.title' -> '恭喜！',
+    'pig.complete.subtitle' -> '全部目标物品已集齐',
+    'wolf.complete.title' -> '失败',
+    'wolf.complete.subtitle' -> '他们已完成全部收集任务',
+
+    'submit.ddl.1' -> '[注意] 提交将在 1 分钟内结束。',
+    'submit.ddl.2' -> '[注意] 提交将在 %d 秒钟内结束。',
+    'submit.ddl.3' -> '[注意] 提交将在 %d 秒钟内结束。',
+    'submit.success' -> '提交成功。',
+    'submit.missing.before' -> '未找到',
+    'submit.missing.after' -> '。',
+    'submit.already.before' -> '重复提交',
+    'submit.already.after' -> '。',
+
+    'election.kill' -> '%s 已被票出。',
+    'election.ddl' -> '[注意] 本轮投票将在 1 分钟内结束。',
+    'election.result.nobody' -> '无人被票出',
+    'election.result.kill' -> '[注意] 你已被票出！你将在 10 秒内出局。',
+    'election.new' -> '新一轮投票已开始。',
+    'election.result' -> '票选结果：%s。',
+
+    'hint.instead.before' -> '请使用命令 ',
+    'hint.instead.after' -> '。',
+    'hint.allset.before' -> '全部目标已设置，你可以使用命令 ',
+    'hint.allset.after' -> ' 开始游戏',
+
+    'goal.set.before' -> '目标 %d 已设置为 ',
+    'goal.set.after' -> '。',
+
+    'bossbar.prepare.title' -> '准备阶段',
+    'bossbar.time.title' -> '收集中',
+    'bossbar.progress.title' -> '收集进度',
+
+    'career.display.title' -> '身份职业配置为：',
+    'career.display.wolf' -> ' - 狼人：%d 个玩家。',
+    'career.display.hunter' -> ' - 火球猎人：%d 个玩家。',
+    'career.display.firework_hunter' -> ' - 烟花猎人：%d 个玩家。',
+    'career.display.builder' -> ' - 建筑师：%d 个玩家。',
+    'career.display.piggy' -> ' - 平民：其余全部玩家。',
+    'career.set' -> '%s已设为 %d 个玩家。',
+
+    'career.title.bystander' -> '旁观者',
+    'career.title.piggy' -> '平民',
+    'career.title.hunter' -> '火球猎人',
+    'career.title.firework_hunter' -> '烟花猎人',
+    'career.title.builder' -> '建筑师',
+    'career.title.wolf' -> '狼人',
+
+    'career.help.bystander' -> '你只能旁观。',
+    'career.help.piggy' -> '完成全部收集任务以取得胜利！',
+    'career.help.hunter' -> '保护平民，找出并杀死狼人，完成全部收集任务。',
+    'career.help.firework_hunter' -> '保护平民，找出并杀死狼人，完成全部收集任务。',
+    'career.help.builder' -> '建筑防御并完成全部收集任务。',
+    'career.help.wolf' -> '隐藏自己的身份，阻止他们完成收集目标。',
+
+    'career.whoami' -> '你是%s：%s',
+
+    'ablity.title.voter' -> '投票',
+    'ablity.title.flyer' -> '飞行',
+    'ablity.title.fireball_spyglasser' -> '火球',
+    'ablity.title.firework_spyglasser' -> '烟花',
+    'ablity.title.build_spyglasser' -> '筑路',
+    'ablity.title.coordinator' -> '追踪',
+
+    'ablity.help.voter' -> '你可以投票。',
+    'ablity.help.flyer' -> '你可以使用鞘翅飞行。',
+    'ablity.help.fireball_spyglasser' -> '你可以使用望远镜发射恶魂火球（准备阶段除外）。',
+    'ablity.help.firework_spyglasser' -> '你可以使用望远镜发射烟花火箭（准备阶段除外）。',
+    'ablity.help.build_spyglasser' -> '你可以使用望远镜建筑道路（准备阶段除外）。',
+    'ablity.help.coordinator' -> '你可以定位其他玩家。',
+
+    'ablity.format' -> '[能力] %s：%s',
+
+    'reject.pending.before' -> '游戏还未开始，请使用命令 ',
+    'reject.pending.after' -> ' 以开始游戏。',
+    'reject.started.before' -> '游戏已开始，请使用命令 ',
+    'reject.started.after' -> ' 以中断游戏。',
+    'reject.leckplayer' -> '在线玩家数不足，游戏无法开始。',
+    'reject.goal.missing' -> '第 %d 个收集目标尚未设置。',
+    'reject.goal.enough.before' -> '全部目标已设置，请使用命令 ',
+    'reject.goal.enough.after' -> ' 修改目标。',
+    'reject.spyglass' -> '冷却中，距离可再次使用剩余 %.2f 秒。',
+    'reject.unable' -> '你没有此能力。',
+    'reject.bystand' -> '你只能旁观。',
+    'reject.reparing.submit' -> '请在准备阶段结束后提交。',
+    'reject.reparing.switch' -> '请在准备阶段结束后切换。',
+
+    'list.title.pending' -> '等待游戏开始：',
+    'list.title.collecting' -> '收集阶段剩余 %d 秒，%d 个任务已完成：',
+    'list.title.preparing' -> '准备阶段剩余 %d 秒：',
+    'list.item.unset' -> '未设置',
+    'list.item.submit' -> '[点此提交]',
+    'list.marker.0' -> ' - ',
+    'list.marker.1' -> ' + ',
+    'list.item.id' -> '#%d：',
+
+    'vote.title' -> '共有 %d 个玩家：',
+    'vote.deceased' -> '[已死亡]',
+    'vote.amount.1' -> '[%02d票] ',
+    'vote.amount.2' -> '[%02d票] ',
+    'vote.footer' -> '当前得票数最多的玩家：',
+    'vote.nobody' -> '（无）',
+    'vote.abstain' -> '（弃权）',
+    'vote.button.vote' -> '[点此投票]',
+    'vote.button.abstain' -> '[点此弃权]',
+    'vote.marker' -> ' - ',
+    'vote.already' -> '你已投过票了。',
+    'vote.notfound' -> '未找到玩家 %s。',
+    'vote.success' -> '投票成功。',
+
+    'locate.notfound' -> '未找到玩家 %s。',
+    'locate.offline' -> '玩家 %s 不在线。',
+
+    'seed.title' -> '地图种子：',
+
+    'ps.wolf' -> '[狼人]',
+    'ps.button.locate' -> '[点此定位]',
+    'ps.marker' -> ' - ',
+    'ps.me' -> '[你]',
+    'ps.offline' -> '[离线]',
+    'ps.title' -> '共有 %d 个玩家：',
+
+    'misc.clipboard' -> '点此复制',
+
+    'effect-applier.on' -> '状态效果广播器：已启用。',
+    'effect-applier.off' -> '状态效果广播器：已禁用。',
+
+    'license.header' -> 'ICollect-Alpha，版权所有 (C) 2023 %s\nICollect-Alpha 绝对不附带任何保证；\n请输入 \'/ica-loader show w\' 查看详情。\n这是自由软件，你可以在特定条款下重分发它。\n请输入 \'/ica-loader show c\' 查看详情。'
+};
+
+global_TranslateKeysEnabled = global_TranslateKeysZhHans;
+
 getLocaleKey(keyid) -> (
-    if(has(global_TranslateKeysEnUS:keyid), global_TranslateKeysEnUS:keyid, 'tkey:' + keyid)
+    if(has(global_TranslateKeysEnabled:keyid), global_TranslateKeysEnabled:keyid, 'tkey:' + keyid)
 );
 
 useIcaInstead() -> (
@@ -166,5 +304,5 @@ pendingReject() -> (
 );
 
 cmdDump() -> (
-    write_file('ica-i18n-table', 'shared_json', global_TranslateKeysEnUS);
+    write_file('ica-i18n-table', 'shared_json', global_TranslateKeysEnabled);
 );
